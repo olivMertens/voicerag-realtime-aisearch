@@ -36,7 +36,7 @@
     "openAiRealtimeVoiceChoice": {
       "value": "${AZURE_OPENAI_REALTIME_VOICE_CHOICE}"
     },
-    "openAirealtimeModelVersion": {
+    "openAiRealtimeModelVersion": {
       "value": "${AZURE_OPENAI_REALTIME_MODEL_VERSION}"
     },
     "searchIndexName": {
@@ -92,6 +92,9 @@
     },
     "backendServiceName": {
       "value": "${AZURE_CONTAINER_APP_NAME}"
+    },
+    "apiServiceName": {
+      "value": "${AZURE_API_SERVICE_NAME}"
     },
     "realtimeDeploymentCapacity": {
       "value": "${AZURE_OPENAI_REALTIME_DEPLOYMENT_CAPACITY=1}"

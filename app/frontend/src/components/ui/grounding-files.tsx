@@ -2,7 +2,6 @@ import { AnimatePresence, motion, Variants } from "framer-motion";
 
 import { GroundingFile as GroundingFileType } from "@/types";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
 import GroundingFile from "./grounding-file";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,12 +36,12 @@ export function GroundingFiles({ files, onSelected }: Properties) {
     }
 
     return (
-        <Card className="m-4 max-w-full md:max-w-md lg:min-w-96 lg:max-w-2xl">
-            <CardHeader>
-                <CardTitle className="text-xl">{t("groundingFiles.title")}</CardTitle>
-                <CardDescription>{t("groundingFiles.description")}</CardDescription>
-            </CardHeader>
-            <CardContent>
+        <div className="glass-card rounded-3xl p-6 m-4 max-w-full md:max-w-2xl lg:min-w-96 lg:max-w-4xl">
+            <div className="mb-4">
+                <h3 className="text-xl font-semibold text-white text-glow mb-2">{t("groundingFiles.title")}</h3>
+                <p className="text-white/80">{t("groundingFiles.description")}</p>
+            </div>
+            <div>
                 <AnimatePresence>
                     <motion.div
                         initial={{ opacity: 0, height: 0 }}
@@ -53,7 +52,7 @@ export function GroundingFiles({ files, onSelected }: Properties) {
                         onLayoutAnimationStart={() => (isAnimating.current = true)}
                         onLayoutAnimationComplete={() => (isAnimating.current = false)}
                     >
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-3">
                             {files.map((file, index) => (
                                 <motion.div key={index} variants={variants} initial="hidden" animate="visible" custom={index}>
                                     <GroundingFile key={index} value={file} onClick={() => onSelected(file)} />
@@ -62,7 +61,7 @@ export function GroundingFiles({ files, onSelected }: Properties) {
                         </div>
                     </motion.div>
                 </AnimatePresence>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

@@ -8,17 +8,17 @@ type Properties = {
 export default function StatusMessage({ isRecording }: Properties) {
     const { t } = useTranslation();
     if (!isRecording) {
-        return <p className="text mb-4 mt-6">{t("status.notRecordingMessage")}</p>;
+        return <p className="text-white/80 mb-4 mt-6">{t("status.notRecordingMessage")}</p>;
     }
 
     return (
-        <div className="flex items-center">
-            <div className="relative h-6 w-6 overflow-hidden">
+        <div className="flex items-center justify-center">
+            <div className="relative h-6 w-6 overflow-hidden mr-3">
                 <div className="absolute inset-0 flex items-end justify-around">
                     {[...Array(4)].map((_, i) => (
                         <div
                             key={i}
-                            className="w-1 rounded-full bg-purple-600 opacity-80"
+                            className="w-1 rounded-full bg-white opacity-90 drop-shadow-lg"
                             style={{
                                 animation: `barHeight${(i % 3) + 1} 1s ease-in-out infinite`,
                                 animationDelay: `${i * 0.1}s`
@@ -27,7 +27,7 @@ export default function StatusMessage({ isRecording }: Properties) {
                     ))}
                 </div>
             </div>
-            <p className="text mb-4 ml-2 mt-6">{t("status.conversationInProgress")}</p>
+            <p className="text-white mb-4 mt-6 font-medium">{t("status.conversationInProgress")}</p>
         </div>
     );
 }

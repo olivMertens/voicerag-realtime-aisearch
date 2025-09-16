@@ -38,6 +38,7 @@ param environmentName string
 param location string
 
 param backendServiceName string = ''
+param apiServiceName string = ''
 param resourceGroupName string = ''
 param logAnalyticsName string = ''
 
@@ -104,12 +105,11 @@ param openAiRealtimeVoiceChoice string
     type: 'location'
   }
 })
-param openAiServiceLocation string
+param openAiServiceLocation string = 'eastus2'
 
-@description('Type of the model gpt4O realtime preview')
+@description('Type of the Azure OpenAI realtime model to deploy')
 @allowed([
-    'gpt-4o-mini-realtime-preview'
-    'gpt-4o-realtime-preview'
+    'gpt-realtime'                  // Version 2025-08-28
   ])
 @metadata({
     azd: {
@@ -117,8 +117,10 @@ param openAiServiceLocation string
     }
   }) 
 param modelType string
+param openAiRealtimeModelVersion string = '2025-08-28'
 param realtimeDeploymentCapacity int
 param embeddingDeploymentCapacity int
+
 param tenantId string = tenant().tenantId
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
@@ -209,11 +211,10 @@ module acaApi 'core/host/container-app-upsert.bicep' = {
   name: 'aca-api'
   scope: resourceGroup
   dependsOn: [
-    containerApps
     acaIdentity
   ]
   params: {
-    name: 'api-container-app'
+    name: !empty(apiServiceName) ? apiServiceName : 'api-container-app'
     location: location
     identityName: acaIdentityName
     exists: false
@@ -238,7 +239,6 @@ module acaBackend 'core/host/container-app-upsert.bicep' = {
   name: 'aca-web'
   scope: resourceGroup
   dependsOn: [
-    containerApps
     acaIdentity
   ]
   params: {
@@ -285,7 +285,7 @@ var openAiDeployments = [
     model: {
       format: 'OpenAI'
       name: modelType
-      version: '2024-12-17'
+      version: openAiRealtimeModelVersion
     }
     sku: {
       name: 'GlobalStandard'
@@ -466,7 +466,7 @@ output AZURE_OPENAI_EMBEDDING_MODEL string = embedModel
 
 output AZURE_SEARCH_ENDPOINT string = reuseExistingSearch
   ? searchEndpoint
-  : 'https://${searchService.outputs.name}.search.windows.net'
+  : searchService.?outputs.?name != null ? 'https://${searchService.outputs.name}.search.windows.net' : ''
 output AZURE_SEARCH_INDEX string = searchIndexName
 output AZURE_SEARCH_SEMANTIC_CONFIGURATION string = searchSemanticConfiguration
 output AZURE_SEARCH_IDENTIFIER_FIELD string = searchIdentifierField
@@ -474,11 +474,12 @@ output AZURE_SEARCH_CONTENT_FIELD string = searchContentField
 output AZURE_SEARCH_TITLE_FIELD string = searchTitleField
 output AZURE_SEARCH_EMBEDDING_FIELD string = searchEmbeddingField
 output AZURE_SEARCH_USE_VECTOR_QUERY bool = searchUseVectorQuery
-output AZURE_STORAGE_ENDPOINT string = 'https://${storage.outputs.name}.blob.core.windows.net'
-output AZURE_STORAGE_ACCOUNT string = storage.outputs.name
-output AZURE_STORAGE_CONNECTION_STRING string = 'ResourceId=/subscriptions/${subscription().subscriptionId}/resourceGroups/${storageResourceGroup.name}/providers/Microsoft.Storage/storageAccounts/${storage.outputs.name}'
+output AZURE_STORAGE_ENDPOINT string = storage.?outputs.?name != null ? 'https://${storage.outputs.name}.blob.core.windows.net' : ''
+output AZURE_STORAGE_ACCOUNT string = storage.?outputs.?name != null ? storage.outputs.name : ''
+output AZURE_STORAGE_CONNECTION_STRING string = storage.?outputs.?name != null ? 'ResourceId=/subscriptions/${subscription().subscriptionId}/resourceGroups/${storageResourceGroup.name}/providers/Microsoft.Storage/storageAccounts/${storage.outputs.name}' : ''
 output AZURE_STORAGE_CONTAINER string = storageContainerName
 output AZURE_STORAGE_RESOURCE_GROUP string = storageResourceGroup.name
 
-output BACKEND_URI string = acaBackend.outputs.uri
-output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerApps.outputs.registryLoginServer
+output BACKEND_URI string = acaBackend.?outputs.?uri != null ? acaBackend.outputs.uri : ''
+output API_URI string = acaApi.?outputs.?uri != null ? acaApi.outputs.uri : ''
+output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerApps.?outputs.?registryLoginServer != null ? containerApps.outputs.registryLoginServer : ''

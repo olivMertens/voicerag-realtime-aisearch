@@ -1,7 +1,5 @@
 import { File } from "lucide-react";
 
-import { Button } from "./button";
-
 import { GroundingFile as GroundingFileType } from "@/types";
 
 type Properties = {
@@ -11,9 +9,12 @@ type Properties = {
 
 export default function GroundingFile({ value, onClick }: Properties) {
     return (
-        <Button variant="outline" size="sm" className="rounded-full" onClick={onClick}>
-            <File className="mr-2 h-4 w-4" />
+        <button 
+            className="glass-button text-white/90 hover:text-white py-2 px-4 rounded-2xl transition-all duration-300 flex items-center gap-2 text-sm font-medium"
+            onClick={onClick}
+        >
+            <File className="h-4 w-4" />
             {value.name}
-        </Button>
+        </button>
     );
 }

@@ -52,7 +52,7 @@ export default function useRealTime({
     onReceivedError
 }: Parameters) {
     const wsEndpoint = useDirectAoaiApi
-        ? `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2024-10-01-preview`
+        ? `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2025-04-01-preview`
         : `/realtime`;
 
     const { sendJsonMessage } = useWebSocket(wsEndpoint, {

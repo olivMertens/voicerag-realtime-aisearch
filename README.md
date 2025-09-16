@@ -1,9 +1,9 @@
-# VoiceRAG: An Application Pattern for RAG + Voice Using Azure AI Search and the GPT-4o Realtime API for Audio
+# VoiceRAG: An Application Pattern for RAG + Voice Using Azure AI Search and the GPT Realtime API for Audio
 
 [![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&skip_quickstart=true&machine=basicLinux32gb&repo=860141324&devcontainer_path=.devcontainer%2Fdevcontainer.json&geo=WestUs2)
 [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/aisearch-openai-rag-audio)
 
-This repo contains an example of how to implement RAG support in applications that use voice as their user interface, powered by the GPT-4o realtime API for audio. We describe the pattern in more detail in [this blog post](https://aka.ms/voicerag), and you can see this sample app in action in [this short video](https://youtu.be/vXJka8xZ9Ko).
+This repo contains an example of how to implement RAG support in applications that use voice as their user interface, powered by the GPT Realtime API for audio. We describe the pattern in more detail in [this blog post](https://aka.ms/voicerag), and you can see this sample app in action in [this short video](https://youtu.be/vXJka8xZ9Ko).
 
 * [Features](#features)
 * [Architecture Diagram](#architecture-diagram)
@@ -28,15 +28,15 @@ it include the prompt system ( and you can see it is actually limited for englis
 
 ## Features
 
-* **Voice interface**: The app uses the browser's microphone to capture voice input, and sends it to the backend where it is processed by the Azure OpenAI GPT-4o Realtime API.
-* **RAG (Retrieval Augmented Generation)**: The app uses the Azure AI Search service to answer questions about a knowledge base, and sends the retrieved documents to the GPT-4o Realtime API to generate a response.
-* **Audio output**: The app plays the response from the GPT-4o Realtime API as audio, using the browser's audio capabilities.
+* **Voice interface**: The app uses the browser's microphone to capture voice input, and sends it to the backend where it is processed by the Azure OpenAI GPT Realtime API.
+* **RAG (Retrieval Augmented Generation)**: The app uses the Azure AI Search service to answer questions about a knowledge base, and sends the retrieved documents to the GPT Realtime API to generate a response.
+* **Audio output**: The app plays the response from the GPT Realtime API as audio, using the browser's audio capabilities.
 * **Citations**: The app shows the search results that were used to generate the response.
 * **Apis** : The app will use a container app Api to give some information with the tools
 
 ### Architecture Diagram
 
-The `RTClient` in the frontend receives the audio input, sends that to the Python backend which uses an `RTMiddleTier` object to interface with the Azure OpenAI real-time API, and includes a tool for searching Azure AI Search.
+The `RTClient` in the frontend receives the audio input, sends that to the Python backend which uses an `RTMiddleTier` object to interface with the Azure OpenAI Realtime API, and includes a tool for searching Azure AI Search.
 
 ![Diagram of real-time RAG pattern](docs/RTMTPattern.png)
 
@@ -126,10 +126,10 @@ The steps below will provision Azure resources and deploy the application code t
     azd env set AZURE_OPENAI_ENDPOINT https://cog-fbgwp5e2xzeezxwoo.openai.azure.com
     ```
 
-4. Run this command to point the app code at your Azure OpenAI real-time deployment. Note that the deployment name may be different from the model name:
+4. Run this command to point the app code at your Azure OpenAI real-time deployment:
 
     ```bash
-    azd env set AZURE_OPENAI_REALTIME_DEPLOYMENT gpt-4o-realtime-preview or gpt-4o-mini-realtime-preview
+    azd env set AZURE_OPENAI_REALTIME_DEPLOYMENT gpt-realtime
     azd env set AZURE_OPENAI_EMBEDDING_MODEL text-embedding-3-large
     
     ```
@@ -142,12 +142,12 @@ The steps below will provision Azure resources and deploy the application code t
    ````
    * **Important**: Beware that the resources created by this command will incur immediate costs, primarily from the AI Search resource. These resources may accrue costs even if you interrupt the command before it is fully executed. You can run `azd down` or delete the resources manually to avoid unnecessary spending.
    The delete could be long enough to delete the resources, so be patient.
-   * **Important**: the deletion for model preview are made in soft delete and stay in the subscription for 30 days, you can delete it manually in the Azure portal in your azure open ai resource, important because the preview are limited in number of deployment and you can't create a new one if you reach the limit.
+   * **Important**: When deleting model deployments, they are moved to soft delete and stay in the subscription for 30 days. You can delete them permanently in the Azure portal in your Azure OpenAI resource. This is important because there are limits on the number of deployments and you can't create a new one if you reach the limit.
    Instead you could use the hard reset command `azd down --purge`
 
    ![screenshot soft delete aoai](docs/aoaisoftdelete.png)
-   * You will be prompted to select two locations, one for the majority of resources and one for the OpenAI resource, which is currently a short list. That location list is based on the [OpenAI model availability table](https://learn.microsoft.com/azure/ai-services/openai/concepts/models#global-standard-model-availability) and may become outdated as availability changes.for some information about quota and region available for the model realtime preview, you can check the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/realtime-audio)
-   * You can also update the quota for the model directly in Azure Ai foundry , the Deployment section and update deployment
+   * You will be prompted to select two locations, one for the majority of resources and one for the OpenAI resource. The GPT real-time models are available for global deployments in East US 2 and Sweden Central regions only. For the most up-to-date information about quota and region availability, check the [Azure OpenAI Real-time documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/realtime-audio)
+   * You can also update the quota for the model directly in Azure AI Foundry, in the Deployment section
    ![screenshot quota Ai foundry](docs/quotarealtime.png)
 
 6. After the application has been successfully deployed you will see a URL printed to the console.  Navigate to that URL to interact with the app in your browser.
@@ -167,10 +167,10 @@ You can run this app locally using either the Azure services you provisioned by 
 2. If did *not* use `azd up`, you will need to create `app/backend/.env` file with the following environment variables:
 
    ```shell
-   AZURE_OPENAI_ENDPOINT=wss://<your instance name>.openai.azure.com
-   AZURE_OPENAI_REALTIME_DEPLOYMENT=gpt-4o-realtime-preview // gpt-4o-mini-realtime-preview
-   AZURE_OPENAI_REALTIME_VOICE_API_VERSION="2024-10-01-preview"
-   AZURE_OPENAI_REALTIME_VOICE_CHOICE=<choose one: alloy, ash, coral, echo, fable, onyx, nova, sage and shimmer
+   AZURE_OPENAI_ENDPOINT=https://<your instance name>.openai.azure.com
+   AZURE_OPENAI_REALTIME_DEPLOYMENT=gpt-realtime
+   AZURE_OPENAI_REALTIME_API_VERSION=2025-04-01-preview
+   AZURE_OPENAI_REALTIME_VOICE_CHOICE=<choose one: alloy, ash, coral, echo, fable, nova, sage and shimmer>
    AZURE_OPENAI_API_KEY=<your api key>
    AZURE_SEARCH_ENDPOINT=https://<your service name>.search.windows.net
    AZURE_SEARCH_INDEX=<your index name>
@@ -223,7 +223,7 @@ Pricing varies per region and usage, so it isn't possible to predict exact costs
 However, you can try the [Azure pricing calculator](https://azure.com/e/a87a169b256e43c089015fda8182ca87) for the resources below.
 
 * Azure Container Apps: Consumption plan with 1 CPU core, 2.0 GB RAM. Pricing with Pay-as-You-Go. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
-* Azure OpenAI: Standard tier, gpt-4o-realtime and text-embedding-3-large models. Pricing per 1K tokens used. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
+* Azure OpenAI: Standard tier, gpt-realtime and text-embedding-3-large models. Pricing per 1K tokens used. [Pricing](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/)
 * Azure AI Search: Standard tier, 1 replica, free level of semantic search. Pricing per hour. [Pricing](https://azure.microsoft.com/pricing/details/search/)
 * Azure Blob Storage: Standard tier with ZRS (Zone-redundant storage). Pricing per storage and read operations. [Pricing](https://azure.microsoft.com/pricing/details/storage/blobs/)
 * Azure Monitor: Pay-as-you-go tier. Costs based on data ingested. [Pricing](https://azure.microsoft.com/pricing/details/monitor/)
@@ -242,5 +242,6 @@ This template uses [Managed Identity](https://learn.microsoft.com/entra/identity
 * [Blog post: VoiceRAG](https://aka.ms/voicerag)
 * [Demo video: VoiceRAG](https://youtu.be/vXJka8xZ9Ko)
 * [Azure OpenAI Realtime Documentation](https://github.com/Azure-Samples/aoai-realtime-audio-sdk/)
-* [Azure  OpenAI Realtime Documentation Learn](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/realtime-audio)
-* [Azure Open Ai realtime model 2024-12-17](https://learn.microsoft.com/en-us/azure/ai-services/openai/whats-new#gpt-4o-realtime-api-2024-12-17)
+* [Azure OpenAI Realtime Documentation Learn](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/realtime-audio)
+* [Azure OpenAI Realtime API Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#realtime-audio)
+* [API Version Information](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#rest-api-versioning) - This project uses API version 2025-04-01-preview

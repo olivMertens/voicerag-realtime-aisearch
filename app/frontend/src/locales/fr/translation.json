@@ -1,21 +1,21 @@
 {
     "app": {
-        "title": "Parlez à votre assistant STU / MS pour vos vols",
-        "footer": "Créée avec Azure AI Search + Azure OpenAI + Container Apps",
-        "stopRecording": "Arrêter l'enregistrement",
-        "startRecording": "Commencer l'enregistrement",
+        "title": "Parlez à votre agent d'assurance",
+        "footer": "Construit avec Azure AI Search + GPT Realtime dans Azure AI Foundry",
+        "stopRecording": "Arrêter la conversation",
+        "startRecording": "Démarrer la conversation",
         "stopConversation": "Arrêter la conversation"
     },
     "status": {
-        "notRecordingMessage": "Posez n’importe quelle question sur les vols Stu & Ms ou sur votre réservation",
+        "notRecordingMessage": "Posez toute question sur vos polices d'assurance MAIF ou MAAF, ou demandez de l'assistance",
         "conversationInProgress": "Conversation en cours"
     },
     "history": {
         "answerHistory": "Historique des réponses",
-        "noHistory": "Pas encore d'historique."
+        "noHistory": "Aucun historique de conversation pour le moment."
     },
     "groundingFiles": {
-        "title": "Fichiers d'ancrage",
-        "description": "Fichiers utilisés pour ancrer les réponses."
+        "title": "Informations d'assurance",
+        "description": "Sources utilisées pour répondre à votre question."
     }
 }
