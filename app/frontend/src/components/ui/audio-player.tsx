@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Square, Volume2, Loader2 } from 'lucide-react';
+import { Play, Pause, Square, Volume2, Loader2, Download } from 'lucide-react';
 import { Button } from './button';
 
 interface AudioPlayerProps {
@@ -140,6 +140,39 @@ export function AudioPlayer({
         setCurrentTime(seekTime);
     };
 
+    const handleDownload = () => {
+        if (!audioData || isLoading) return;
+        
+        try {
+            // Create the same blob as used for playback
+            const binaryString = atob(audioData);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            const audioBlob = new Blob([bytes], { type: `audio/${audioFormat}` });
+            const downloadUrl = URL.createObjectURL(audioBlob);
+            
+            // Create download link and trigger download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = `ai-audio-${voice}-${Date.now()}.${audioFormat}`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // Clean up
+            setTimeout(() => URL.revokeObjectURL(downloadUrl), 100);
+            
+            console.log('🎵 Audio file downloaded:', downloadLink.download);
+        } catch (err) {
+            const errorMsg = `Download failed: ${err instanceof Error ? err.message : 'Unknown error'}`;
+            setError(errorMsg);
+            onError?.(errorMsg);
+        }
+    };
+
     const formatTime = (time: number): string => {
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
@@ -258,6 +291,17 @@ export function AudioPlayer({
                     className="border-white/30 text-white hover:bg-white/10"
                 >
                     <Square className="w-4 h-4" />
+                </Button>
+
+                <Button
+                    onClick={handleDownload}
+                    disabled={!audioData || isLoading}
+                    size="sm"
+                    variant="outline"
+                    className="border-green-400/50 text-green-400 hover:bg-green-400/10"
+                    title="Télécharger le fichier MP3"
+                >
+                    <Download className="w-4 h-4" />
                 </Button>
             </div>
 
