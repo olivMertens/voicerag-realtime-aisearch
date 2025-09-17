@@ -24,16 +24,16 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host ""
 Write-Host "Starting backend"
 Write-Host ""
-Set-Location ../backend
-$venvPythonPath = "./.venv/scripts/python.exe"
+Set-Location ../../app/backend
+$venvPythonPath = "../../.venv/scripts/python.exe"
 if (Test-Path -Path "/usr") {
   # fallback to Linux venv path
-  $venvPythonPath = "./.venv/bin/python"
+  $venvPythonPath = "../../.venv/bin/python"
 }
 
-# Start the backend process using Gunicorn with AioHTTP worker
+# Start the backend process using the dedicated startup script
 Start-Process -FilePath $venvPythonPath `
-              -ArgumentList "-m gunicorn app:create_app -b 0.0.0.0:8000 --worker-class aiohttp.GunicornWebWorker" `
+              -ArgumentList "start_backend.py" `
               -NoNewWindow `
               -PassThru | Out-Null
 
@@ -50,10 +50,10 @@ Write-Host ""
 Set-Location ../api
 
 # Determine the Python executable path for API based on the operating system
-$apiVenvPythonPath = "./.venv/scripts/python.exe"  # Windows path
+$apiVenvPythonPath = "../../.venv/scripts/python.exe"  # Windows path
 if ($IsLinux) {
     # Fallback to Linux virtual environment path
-    $apiVenvPythonPath = "./.venv/bin/python"
+    $apiVenvPythonPath = "../../.venv/bin/python"
 }
 
 # Start the API process using Uvicorn

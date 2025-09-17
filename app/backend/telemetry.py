@@ -1,162 +1,337 @@
 """
-OpenTelemetry configuration for tracking tool calls and model usage
+Azure Monitor OpenTelemetry configuration for tracking tool calls and model usage
+Compatible with Application Insights and AI Foundry
 """
 import os
 import time
 import json
+import logging
 from typing import Dict, Any, Optional, List
-from opentelemetry import trace, metrics
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
-from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry import trace
 from opentelemetry.trace.status import Status, StatusCode
 from opentelemetry.semconv.trace import SpanAttributes
-import logging
+
+# Global telemetry data storage
+_tool_calls: List[Dict[str, Any]] = []
+_model_calls: List[Dict[str, Any]] = []
 
 logger = logging.getLogger("telemetry")
 
-class TelemetryCollector:
-    def __init__(self):
-        self.tracer = None
-        self.meter = None
-        self.tool_calls: List[Dict[str, Any]] = []
-        self.model_calls: List[Dict[str, Any]] = []
-        self._setup_telemetry()
+def setup_azure_monitor():
+    """
+    Setup Azure Monitor OpenTelemetry integration with AI Foundry compatibility.
+    This should be called once at application startup.
+    """
+    try:
+        from azure.monitor.opentelemetry import configure_azure_monitor
+        
+        # Check for connection string or instrumentation key
+        connection_string = os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING")
+        instrumentation_key = os.environ.get("APPINSIGHTS_INSTRUMENTATIONKEY")
+        
+        if not connection_string and not instrumentation_key:
+            logger.warning("⚠️ No Application Insights connection string or instrumentation key found")
+            return False
+        
+        # Configure Azure Monitor with enhanced settings for AI Foundry
+        configure_azure_monitor(
+            logger_name="maif_voice_assistant",
+            connection_string=connection_string,
+            # Enable additional features
+            enable_live_metrics=True,
+            # Sample rate for performance (1.0 = 100% sampling)
+            sampling_rate=1.0
+        )
+        
+        # Try to instrument HTTP libraries for API calls tracing
+        try:
+            from opentelemetry.instrumentation.requests import RequestsInstrumentor
+            from opentelemetry.instrumentation.urllib3 import URLLib3Instrumentor
+            
+            RequestsInstrumentor().instrument()
+            URLLib3Instrumentor().instrument()
+            
+            # Try to instrument httpx if available
+            try:
+                from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+                HTTPXClientInstrumentor().instrument()
+            except ImportError:
+                pass  # httpx instrumentation not available, skip
+            
+            logger.info("✅ HTTP instrumentation enabled")
+        except Exception as e:
+            logger.warning(f"⚠️ HTTP instrumentation failed: {e}")
+        
+        # Set custom resource attributes for AI Foundry
+        try:
+            from opentelemetry.sdk.resources import Resource
+            from opentelemetry import trace
+            
+            resource = Resource.create({
+                "service.name": "maif-voice-assistant",
+                "service.version": "1.0.0",
+                "ai.foundry.project": "maif-insurance-assistant",
+                "deployment.environment": os.environ.get("ENVIRONMENT", "development"),
+                "ai.system": "azure_openai_realtime"
+            })
+            logger.info("✅ AI Foundry resource attributes set")
+        except Exception as e:
+            logger.warning(f"⚠️ Resource attributes setup failed: {e}")
+        
+        logger.info("✅ Azure Monitor OpenTelemetry configured for AI Foundry")
+        return True
+        
+    except ImportError as e:
+        logger.warning(f"⚠️ Azure Monitor OpenTelemetry not available: {e}")
+        logger.info("💡 Install with: pip install azure-monitor-opentelemetry")
+        return False
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to setup Azure Monitor: {e}")
+        return False
+
+def get_tracer():
+    """Get OpenTelemetry tracer for creating spans"""
+    return trace.get_tracer("maif_voice_assistant")
+
+def trace_tool_call(tool_name: str, args: Dict[str, Any], duration: Optional[float] = None, 
+                   response: Optional[Any] = None, response_size: Optional[int] = None):
+    """Trace a tool call with AI Foundry semantic conventions"""
+    tracer = get_tracer()
     
-    def _setup_telemetry(self):
-        """Setup OpenTelemetry with OTLP exporters"""
-        # Resource information
-        resource = Resource.create({
-            "service.name": "maif-maaf-voice-assistant",
-            "service.version": "1.0.0",
-            "service.instance.id": "backend-instance"
+    with tracer.start_as_current_span(f"ai_tool.{tool_name}") as span:
+        # Set AI Foundry compatible attributes
+        span.set_attributes({
+            # Standard semantic conventions
+            "operation.name": f"ai_tool.{tool_name}",
+            "ai.system": "maif_voice_assistant",
+            "ai.tool.name": tool_name,
+            "ai.tool.type": "function",
+            
+            # Tool-specific attributes
+            "tool.name": tool_name,
+            "tool.args": json.dumps(args, default=str)[:1000],  # Limit size
+            "component": "ai_tool_execution",
+            
+            # Performance metrics
+            "span.kind": "internal"
         })
         
-        # Setup tracer
-        trace.set_tracer_provider(TracerProvider(resource=resource))
-        self.tracer = trace.get_tracer(__name__)
+        if duration:
+            span.set_attribute("duration_ms", duration * 1000)
+            span.set_attribute("ai.tool.duration_ms", duration * 1000)
         
-        # Setup OTLP exporter (can be configured to send to Azure Monitor, Jaeger, etc.)
-        otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317")
+        # Add response details with AI Foundry conventions
+        if response is not None:
+            if isinstance(response, dict):
+                span.set_attribute("ai.tool.response.type", "dict")
+                span.set_attribute("ai.tool.response.keys_count", len(response))
+                
+                # Special handling for search results
+                if tool_name == "search" and "sources" in response:
+                    sources = response.get("sources", [])
+                    if isinstance(sources, list):
+                        span.set_attribute("search.results.count", len(sources))
+                        span.set_attribute("ai.tool.search.results_found", len(sources))
+                
+                # Special handling for grounding
+                if tool_name == "report_grounding":
+                    grounding_info = response.get("grounding_info", {})
+                    if isinstance(grounding_info, dict):
+                        span.set_attribute("ai.grounding.confidence", grounding_info.get("confidence_level", "unknown"))
+                        span.set_attribute("ai.grounding.sources_found", grounding_info.get("found_sources", 0))
+                        span.set_attribute("ai.grounding.status", grounding_info.get("status", "unknown"))
+                
+                response_preview = json.dumps(response, default=str)[:500]
+                span.set_attribute("ai.tool.response.preview", response_preview)
+                
+            elif isinstance(response, list):
+                span.set_attribute("ai.tool.response.type", "list")
+                span.set_attribute("ai.tool.response.length", len(response))
+                if response:
+                    first_item_preview = json.dumps(response[0], default=str)[:200]
+                    span.set_attribute("ai.tool.response.first_item", first_item_preview)
+            else:
+                span.set_attribute("ai.tool.response.type", type(response).__name__)
+                span.set_attribute("ai.tool.response.preview", str(response)[:500])
         
-        try:
-            span_exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
-            span_processor = BatchSpanProcessor(span_exporter)
-            trace.get_tracer_provider().add_span_processor(span_processor)
-            logger.info(f"✅ OpenTelemetry configured with OTLP endpoint: {otlp_endpoint}")
-        except Exception as e:
-            logger.warning(f"⚠️ OTLP exporter not available: {e}")
+        if response_size:
+            span.set_attribute("ai.tool.response.size_bytes", response_size)
         
-        # Setup metrics
-        try:
-            metric_reader = PeriodicExportingMetricReader(
-                OTLPMetricExporter(endpoint=otlp_endpoint),
-                export_interval_millis=10000  # Export every 10 seconds
-            )
-            metrics.set_meter_provider(MeterProvider(resource=resource, metric_readers=[metric_reader]))
-            self.meter = metrics.get_meter(__name__)
-        except Exception as e:
-            logger.warning(f"⚠️ Metrics not available: {e}")
-            
-        # Instrument HTTP clients
-        HTTPXClientInstrumentor().instrument()
-        AioHttpClientInstrumentor().instrument()
+        # Mark as successful
+        span.set_status(Status(StatusCode.OK))
+        
+        # Store for UI (fallback if Azure Monitor not available)
+        tool_call = {
+            "id": f"{span.get_span_context().span_id:016x}",
+            "tool_name": tool_name,
+            "args": args,
+            "response_preview": str(response)[:200] if response else None,
+            "timestamp": time.time(),
+            "duration": duration,
+            "status": "completed" if duration else "running"
+        }
+        _tool_calls.append(tool_call)
+        
+        # Keep only last 50 calls
+        if len(_tool_calls) > 50:
+            _tool_calls[:] = _tool_calls[-50:]
+        
+        logger.info(f"🔧 Tool call traced: {tool_name} (duration: {duration:.3f}s)" if duration else f"🔧 Tool call started: {tool_name}")
+        return span
+
+def trace_model_call(model_name: str, operation: str, tokens_used: Optional[int] = None, 
+                    latency: Optional[float] = None, cost: Optional[float] = None,
+                    prompt: Optional[str] = None, response: Optional[str] = None):
+    """Trace AI model calls with Azure AI Foundry semantic conventions"""
+    tracer = get_tracer()
     
-    def trace_tool_call(self, tool_name: str, args: Dict[str, Any], duration: Optional[float] = None):
-        """Trace a tool call with its parameters"""
-        with self.tracer.start_as_current_span(f"tool_call.{tool_name}") as span:
-            span.set_attributes({
-                SpanAttributes.RPC_METHOD: tool_name,
-                "tool.name": tool_name,
-                "tool.args": json.dumps(args, default=str)[:1000],  # Limit size
-                "component": "tool_execution"
-            })
+    with tracer.start_as_current_span(f"ai_model.{operation}") as span:
+        # Set Azure AI Foundry semantic attributes
+        span.set_attributes({
+            # Core AI attributes (AI Foundry compatible)
+            "ai.system": "azure_openai",
+            "ai.model.name": model_name,
+            "ai.operation.name": operation,
+            "ai.model.provider": "azure",
+            "ai.model.type": "chat" if "chat" in operation else "embedding" if "embedding" in operation else "completion",
             
-            if duration:
-                span.set_attribute("tool.duration_ms", duration * 1000)
+            # Gen AI semantic conventions
+            "gen_ai.system": "azure_openai",
+            "gen_ai.request.model": model_name,
+            "gen_ai.operation.name": operation,
             
-            # Store for UI
-            tool_call = {
-                "id": span.get_span_context().span_id,
-                "tool_name": tool_name,
-                "args": args,
-                "timestamp": time.time(),
-                "duration": duration,
-                "status": "completed" if duration else "running"
-            }
-            self.tool_calls.append(tool_call)
+            # Standard attributes
+            "operation.name": f"ai_model.{operation}",
+            "component": "ai_model",
+            "span.kind": "client"
+        })
+        
+        # Usage metrics
+        if tokens_used:
+            span.set_attribute("gen_ai.usage.completion_tokens", tokens_used)
+            span.set_attribute("ai.model.tokens.total", tokens_used)
+        
+        if latency:
+            span.set_attribute("duration_ms", latency * 1000)
+            span.set_attribute("ai.model.latency_ms", latency * 1000)
+        
+        if cost:
+            span.set_attribute("gen_ai.usage.cost", cost)
+            span.set_attribute("ai.model.cost_usd", cost)
+        
+        # Content attributes (with size limits for performance)
+        if prompt:
+            prompt_preview = prompt[:300]  # First 300 chars
+            span.set_attribute("ai.model.prompt.preview", prompt_preview)
+            span.set_attribute("ai.model.prompt.length", len(prompt))
+            span.set_attribute("gen_ai.prompt.preview", prompt_preview)
+        
+        if response:
+            response_preview = response[:300]  # First 300 chars
+            span.set_attribute("ai.model.completion.preview", response_preview)
+            span.set_attribute("ai.model.completion.length", len(response))
+            span.set_attribute("gen_ai.completion.preview", response_preview)
+        
+        # Mark as successful
+        span.set_status(Status(StatusCode.OK))
+        
+        # Store for UI (fallback)
+        model_call = {
+            "id": f"{span.get_span_context().span_id:016x}",
+            "model_name": model_name,
+            "operation": operation,
+            "tokens_used": tokens_used,
+            "latency": latency,
+            "cost": cost,
+            "prompt_preview": prompt[:100] if prompt else None,
+            "response_preview": response[:100] if response else None,
+            "timestamp": time.time(),
+            "status": "completed"
+        }
+        _model_calls.append(model_call)
+        
+        # Keep only last 50 calls
+        if len(_model_calls) > 50:
+            _model_calls[:] = _model_calls[-50:]
+        
+        logger.info(f"🤖 Model call traced: {model_name}.{operation} (tokens: {tokens_used}, latency: {latency:.3f}s)" if latency else f"🤖 Model call: {model_name}.{operation}")
+        return span
+
+def trace_search_operation(query: str, results_count: int, search_type: str = "hybrid"):
+    """Trace Azure AI Search operations with AI Foundry compatibility"""
+    tracer = get_tracer()
+    
+    with tracer.start_as_current_span(f"ai_search.{search_type}") as span:
+        span.set_attributes({
+            # AI Foundry search attributes
+            "ai.system": "azure_ai_search",
+            "ai.search.query": query[:200],  # Limit query size
+            "ai.search.type": search_type,
+            "ai.search.results.count": results_count,
+            "ai.search.provider": "azure",
             
-            # Keep only last 50 calls
-            if len(self.tool_calls) > 50:
-                self.tool_calls = self.tool_calls[-50:]
+            # Standard search attributes
+            "search.query": query[:200],
+            "search.type": search_type,
+            "search.results_count": results_count,
+            "search.engine": "azure_cognitive_search",
             
-            return span
+            # Operation attributes
+            "operation.name": f"ai_search.{search_type}",
+            "component": "azure_search",
+            "span.kind": "client"
+        })
+        
+        # Add search quality metrics based on results
+        if results_count == 0:
+            span.set_attribute("ai.search.quality", "no_results")
+            span.set_status(Status(StatusCode.OK, "No results found"))
+        elif results_count <= 2:
+            span.set_attribute("ai.search.quality", "low")
+        elif results_count <= 5:
+            span.set_attribute("ai.search.quality", "medium")
+        else:
+            span.set_attribute("ai.search.quality", "high")
+        
+        # Mark successful operation
+        span.set_status(Status(StatusCode.OK))
+        
+        logger.info(f"🔍 Search traced: {search_type} query '{query[:50]}...' -> {results_count} results")
+        return span
+
+def get_telemetry_data() -> Dict[str, Any]:
+    """Get current telemetry data for UI"""
+    return {
+        "tool_calls": _tool_calls[-10:],  # Last 10 for UI
+        "model_calls": _model_calls[-10:],  # Last 10 for UI
+        "stats": {
+            "total_tool_calls": len(_tool_calls),
+            "total_model_calls": len(_model_calls),
+            "avg_tool_duration": sum(call.get("duration", 0) for call in _tool_calls) / len(_tool_calls) if _tool_calls else 0,
+            "avg_model_latency": sum(call.get("latency", 0) for call in _model_calls) / len(_model_calls) if _model_calls else 0
+        }
+    }
+
+# Deprecated: Keep for backward compatibility
+class TelemetryCollector:
+    """Deprecated: Use module-level functions instead"""
+    def __init__(self):
+        pass  # No warning needed - we'll remove the calls
+        
+    def trace_tool_call(self, tool_name: str, args: Dict[str, Any], duration: Optional[float] = None,
+                       response: Optional[Any] = None, response_size: Optional[int] = None):
+        return trace_tool_call(tool_name, args, duration, response, response_size)
     
     def trace_model_call(self, model_name: str, operation: str, tokens_used: Optional[int] = None, 
-                        latency: Optional[float] = None, cost: Optional[float] = None):
-        """Trace AI model calls"""
-        with self.tracer.start_as_current_span(f"ai_model.{operation}") as span:
-            span.set_attributes({
-                "ai.model.name": model_name,
-                "ai.operation": operation,
-                "component": "ai_model"
-            })
-            
-            if tokens_used:
-                span.set_attribute("ai.usage.tokens", tokens_used)
-            if latency:
-                span.set_attribute("ai.latency_ms", latency * 1000)
-            if cost:
-                span.set_attribute("ai.cost_usd", cost)
-            
-            # Store for UI
-            model_call = {
-                "id": span.get_span_context().span_id,
-                "model_name": model_name,
-                "operation": operation,
-                "tokens_used": tokens_used,
-                "latency": latency,
-                "cost": cost,
-                "timestamp": time.time(),
-                "status": "completed"
-            }
-            self.model_calls.append(model_call)
-            
-            # Keep only last 50 calls
-            if len(self.model_calls) > 50:
-                self.model_calls = self.model_calls[-50:]
-            
-            return span
+                        latency: Optional[float] = None, cost: Optional[float] = None,
+                        prompt: Optional[str] = None, response: Optional[str] = None):
+        return trace_model_call(model_name, operation, tokens_used, latency, cost, prompt, response)
     
     def trace_search_operation(self, query: str, results_count: int, search_type: str = "hybrid"):
-        """Trace search operations"""
-        with self.tracer.start_as_current_span(f"search.{search_type}") as span:
-            span.set_attributes({
-                "search.query": query[:200],  # Limit query size
-                "search.type": search_type,
-                "search.results_count": results_count,
-                "component": "search"
-            })
-            return span
+        return trace_search_operation(query, results_count, search_type)
     
     def get_telemetry_data(self) -> Dict[str, Any]:
-        """Get current telemetry data for UI"""
-        return {
-            "tool_calls": self.tool_calls[-10:],  # Last 10 for UI
-            "model_calls": self.model_calls[-10:],  # Last 10 for UI
-            "stats": {
-                "total_tool_calls": len(self.tool_calls),
-                "total_model_calls": len(self.model_calls),
-                "avg_tool_duration": sum(call.get("duration", 0) for call in self.tool_calls) / len(self.tool_calls) if self.tool_calls else 0,
-                "avg_model_latency": sum(call.get("latency", 0) for call in self.model_calls) / len(self.model_calls) if self.model_calls else 0
-            }
-        }
+        return get_telemetry_data()
 
-# Global telemetry instance
+# Global telemetry instance for backward compatibility (no duplication)
 telemetry = TelemetryCollector()

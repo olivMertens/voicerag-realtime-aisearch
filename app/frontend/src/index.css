@@ -120,6 +120,25 @@ body {
                      0 0 20px rgba(255, 255, 255, 0.3),
                      0 0 30px rgba(255, 255, 255, 0.1);
     }
+
+    /* Interactive button styles */
+    .interactive-button {
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        pointer-events: auto;
+    }
+
+    .interactive-button:active {
+        transform: scale(0.95);
+    }
+
+    .interactive-button:focus-visible {
+        outline: 2px solid rgba(59, 130, 246, 0.5);
+        outline-offset: 2px;
+    }
 }
 
 @layer base {

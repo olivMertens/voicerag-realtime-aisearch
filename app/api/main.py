@@ -43,14 +43,44 @@ async def read_root():
     return 'MAAF/MAIF Insurance Voice Assistant API'
 
 @app.get("/api/policies")
-async def get_policies(policy_number: Optional[str] = None, name: Optional[str] = None, policy_type: Optional[str] = None):
+async def get_policies(policy_number: Optional[str] = None, holder_name: Optional[str] = None, 
+                      first_name: Optional[str] = None, last_name: Optional[str] = None, 
+                      policy_type: Optional[str] = None):
+    """
+    Retrieve insurance policies with flexible name search.
+    
+    - **policy_number**: Filter by policy number (optional)
+    - **holder_name**: Search by full name (e.g., "Jean Dupont") (optional)
+    - **first_name**: Search by first name only (e.g., "Jean") (optional) 
+    - **last_name**: Search by last name only (e.g., "Dupont") (optional)
+    - **policy_type**: Filter by policy type (Auto, Habitation, Santé, etc.) (optional)
+    """
     policies = get_policies_data()
+    
     if policy_number:
-        policies = [p for p in policies if p["policy"] == policy_number]
-    if name:
-        policies = [p for p in policies if p["name"].lower() == name.lower()]
+        policies = [p for p in policies if p["policy"].lower() == policy_number.lower()]
+    
+    if holder_name:
+        # Support partial and full name matching
+        holder_name_lower = holder_name.lower()
+        policies = [p for p in policies if (
+            holder_name_lower in p["name"].lower() or
+            holder_name_lower == p["first_name"].lower() or
+            holder_name_lower == p["last_name"].lower() or
+            holder_name_lower == f"{p['first_name']} {p['last_name']}".lower()
+        )]
+    
+    if first_name:
+        first_name_lower = first_name.lower()
+        policies = [p for p in policies if first_name_lower in p["first_name"].lower()]
+    
+    if last_name:
+        last_name_lower = last_name.lower()
+        policies = [p for p in policies if last_name_lower in p["last_name"].lower()]
+    
     if policy_type:
         policies = [p for p in policies if p["type"].lower() == policy_type.lower()]
+    
     return {"policies": policies}
 
 @app.get("/api/policies/{policy_id}")
@@ -62,16 +92,47 @@ async def get_policy(policy_id: int):
     return {"policy": policy}
 
 @app.get("/api/claims")
-async def get_claims(claim_number: Optional[str] = None, policy_number: Optional[str] = None, holder_name: Optional[str] = None, claim_type: Optional[str] = None):
+async def get_claims(claim_number: Optional[str] = None, policy_number: Optional[str] = None, 
+                    holder_name: Optional[str] = None, first_name: Optional[str] = None, 
+                    last_name: Optional[str] = None, claim_type: Optional[str] = None):
+    """
+    Retrieve insurance claims with flexible name search.
+    
+    - **claim_number**: Filter by claim ID (optional)
+    - **policy_number**: Filter by policy number (optional) 
+    - **holder_name**: Search by full holder name (e.g., "Jean Dupont") (optional)
+    - **first_name**: Search by holder first name only (e.g., "Jean") (optional)
+    - **last_name**: Search by holder last name only (e.g., "Dupont") (optional)
+    - **claim_type**: Filter by claim type (Auto, Dégât des eaux, Vol, etc.) (optional)
+    """
     claims = get_claims_data()
+    
     if claim_number:
-        claims = [c for c in claims if c["id"] == claim_number]
+        claims = [c for c in claims if c["id"].lower() == claim_number.lower()]
+    
     if policy_number:
-        claims = [c for c in claims if c["policy_number"] == policy_number]
+        claims = [c for c in claims if c["policy_number"].lower() == policy_number.lower()]
+    
     if holder_name:
-        claims = [c for c in claims if c["holder"].lower() == holder_name.lower()]
+        # Support partial and full name matching
+        holder_name_lower = holder_name.lower()
+        claims = [c for c in claims if holder_name_lower in c["holder"].lower()]
+    
+    if first_name:
+        first_name_lower = first_name.lower()
+        claims = [c for c in claims if (
+            'holder_first_name' in c and first_name_lower in c["holder_first_name"].lower()
+        ) or first_name_lower in c["holder"].lower()]
+    
+    if last_name:
+        last_name_lower = last_name.lower()
+        claims = [c for c in claims if (
+            'holder_last_name' in c and last_name_lower in c["holder_last_name"].lower()
+        ) or last_name_lower in c["holder"].lower()]
+    
     if claim_type:
         claims = [c for c in claims if c["type"].lower() == claim_type.lower()]
+    
     return {"claims": claims}
 
 @app.get("/api/claims/{claim_id}")
@@ -88,23 +149,46 @@ async def get_claim_by_id(claim_id: str):
     return {"claim": claim}
 
 @app.get("/api/realtime/policies")
-async def get_realtime_policies(policy_type: Optional[str] = None, status: Optional[str] = None, holder_name: Optional[str] = None):
+async def get_realtime_policies(policy_type: Optional[str] = None, status: Optional[str] = None, 
+                               holder_name: Optional[str] = None, first_name: Optional[str] = None, 
+                               last_name: Optional[str] = None):
     """
     Retrieve comprehensive real-time policy information from MAAF/MAIF system.
     
     - **policy_type**: Filter by policy type (Auto, Habitation, Santé, etc.) (optional)
     - **status**: Filter by policy status (active, suspended, expired, etc.) (optional)
-    - **holder_name**: Search by policyholder name (optional)
+    - **holder_name**: Search by full or partial policyholder name (optional)
+    - **first_name**: Search by first name only (e.g., "Jean") (optional)
+    - **last_name**: Search by last name only (e.g., "Dupont") (optional)
     """
     # In a real implementation, this would connect to the actual MAAF/MAIF database
     # For now, return the static data with filtering
     policies = get_policies_data()
+    
     if policy_type:
         policies = [p for p in policies if p["type"].lower() == policy_type.lower()]
+    
     if status:
         policies = [p for p in policies if p["status"].lower() == status.lower()]
+    
     if holder_name:
-        policies = [p for p in policies if holder_name.lower() in p["name"].lower()]
+        # Support partial and full name matching
+        holder_name_lower = holder_name.lower()
+        policies = [p for p in policies if (
+            holder_name_lower in p["name"].lower() or
+            holder_name_lower == p["first_name"].lower() or
+            holder_name_lower == p["last_name"].lower() or
+            holder_name_lower == f"{p['first_name']} {p['last_name']}".lower()
+        )]
+    
+    if first_name:
+        first_name_lower = first_name.lower()
+        policies = [p for p in policies if first_name_lower in p["first_name"].lower()]
+    
+    if last_name:
+        last_name_lower = last_name.lower()
+        policies = [p for p in policies if last_name_lower in p["last_name"].lower()]
+        
     return {"policies": policies, "total": len(policies)}
 
 @app.get("/api/agencies")

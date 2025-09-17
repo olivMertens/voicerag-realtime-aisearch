@@ -1,3 +1,32 @@
+export type EnhancedGroundingSource = {
+    chunk_id: string;
+    title: string;
+    chunk: string;
+    category: string;
+    excerpt: string;
+    word_count: number;
+    relevance: 'high' | 'medium' | 'low';
+};
+
+export type GroundingInfo = {
+    total_sources: number;
+    requested_sources: number;
+    found_sources: number;
+    missing_sources: string[];
+    confidence_level: 'high' | 'medium' | 'low';
+    summary: string;
+    status: 'success' | 'not_found' | 'error' | 'no_sources';
+    categories: string[];
+    total_words: number;
+    timestamp: number;
+    error_details?: string;
+};
+
+export type EnhancedToolResult = {
+    sources: EnhancedGroundingSource[];
+    grounding_info: GroundingInfo;
+};
+
 export type GroundingFile = {
     id: string;
     name: string;
@@ -8,6 +37,7 @@ export type HistoryItem = {
     id: string;
     transcript: string;
     groundingFiles: GroundingFile[];
+    enhancedGrounding?: EnhancedToolResult; // Add enhanced grounding support
 };
 
 export type SessionUpdateCommand = {
@@ -70,5 +100,29 @@ export type ExtensionMiddleTierToolResponse = {
 };
 
 export type ToolResult = {
-    sources: { chunk_id: string; title: string; chunk: string }[];
+    sources?: { chunk_id: string; title: string; chunk: string }[];
+    grounding_info?: GroundingInfo; // Support enhanced grounding info
+} | EnhancedToolResult; // Support both old and new formats
+
+export type CallHistoryItem = {
+    date: string;
+    type: string;
+    reason: string;
+    outcome: string;
+    agent?: string;
+    duration?: string;
+    notes?: string;
+};
+
+export type CustomerInfo = {
+    name: string;
+    first_name?: string;
+    last_name?: string;
+    policy_number?: string;
+    customer_id?: string;
+};
+
+export type CallHistoryMetadata = {
+    customer: CustomerInfo;
+    call_history: CallHistoryItem[];
 };

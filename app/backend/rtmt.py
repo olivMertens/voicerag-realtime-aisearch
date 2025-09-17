@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import os
 from enum import Enum
 from typing import Any, Callable, Optional
 
@@ -8,6 +9,12 @@ import aiohttp
 from aiohttp import web
 from azure.core.credentials import AzureKeyCredential
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
+# Import conversation logger
+try:
+    from conversation_logger import conversation_logger
+except ImportError:
+    conversation_logger = None
 
 logger = logging.getLogger("voicerag")
 
@@ -61,16 +68,24 @@ class RTMiddleTier:
     max_tokens: Optional[int] = None
     disable_audio: Optional[bool] = None
     voice_choice: Optional[str] = None
-    api_version: str = "2025-04-01-preview"  # Updated to latest stable API version
+    transcription_language: Optional[str] = None
+    api_version: str = "2025-04-01-preview"  # Default for Realtime API
     _tools_pending = {}
     _token_provider = None
-
-    def __init__(self, endpoint: str, deployment: str, credentials: AzureKeyCredential | DefaultAzureCredential, voice_choice: Optional[str] = None):
+    _current_session_id: Optional[str] = None
+    _assistant_response_buffer: str = ""
+    _user_transcript_buffer: str = ""
+    
+    def __init__(self, endpoint: str, deployment: str, credentials: AzureKeyCredential | DefaultAzureCredential, voice_choice: Optional[str] = None, transcription_language: Optional[str] = None):
         self.endpoint = endpoint
         self.deployment = deployment
         self.voice_choice = voice_choice
+        self.transcription_language = transcription_language or "auto"  # Default to auto-detection
+        # Use environment variable if available, otherwise use default
+        self.api_version = os.environ.get("AZURE_OPENAI_REALTIME_API_VERSION", self.api_version)
         if voice_choice is not None:
             logger.info("Realtime voice choice set to %s", voice_choice)
+        logger.info("Realtime transcription language set to %s", self.transcription_language)
         if isinstance(credentials, AzureKeyCredential):
             self.key = credentials.key
         else:
@@ -84,6 +99,12 @@ class RTMiddleTier:
             match message["type"]:
                 case "session.created":
                     session = message["session"]
+                    # Start conversation logging session
+                    if conversation_logger:
+                        session_id = f"rtmt_{id(client_ws)}_{int(asyncio.get_event_loop().time())}"
+                        self._current_session_id = conversation_logger.start_session(session_id)
+                        logger.info(f"Started conversation logging for session: {self._current_session_id}")
+                    
                     # Hide the instructions, tools and max tokens from clients, if we ever allow client-side 
                     # tools, this will need updating
                     session["instructions"] = ""
@@ -91,6 +112,19 @@ class RTMiddleTier:
                     session["voice"] = self.voice_choice
                     session["tool_choice"] = "none"
                     session["max_response_output_tokens"] = None
+                    
+                    # Configure input audio transcription
+                    transcription_config = {"model": "whisper-1"}
+                    
+                    # Add language specification only if not auto-detection
+                    if self.transcription_language and self.transcription_language != "auto":
+                        transcription_config["language"] = self.transcription_language
+                        logger.info(f"🌐 Transcription configured for language: {self.transcription_language}")
+                    else:
+                        logger.info("🌍 Transcription configured for automatic language detection")
+                    
+                    session["input_audio_transcription"] = transcription_config
+                    
                     updated_message = json.dumps(message)
 
                 case "response.output_item.added":
@@ -119,6 +153,16 @@ class RTMiddleTier:
                         tool = self.tools[item["name"]]
                         args = item["arguments"]
                         result = await tool.target(json.loads(args))
+                        
+                        # Log tool call
+                        if conversation_logger:
+                            conversation_logger.log_tool_call(
+                                tool_name=item["name"],
+                                args=json.loads(args),
+                                response=result.to_text(),
+                                duration=None  # We could add timing here
+                            )
+                        
                         await server_ws.send_json({
                             "type": "conversation.item.create",
                             "item": {
@@ -139,6 +183,15 @@ class RTMiddleTier:
                         updated_message = None
 
                 case "response.done":
+                    # Log assistant response when complete
+                    if conversation_logger and self._assistant_response_buffer.strip():
+                        conversation_logger.log_assistant_message(
+                            response=self._assistant_response_buffer.strip(),
+                            model_used=self.model or self.deployment,
+                            metadata={"session_id": self._current_session_id}
+                        )
+                        self._assistant_response_buffer = ""
+                    
                     if len(self._tools_pending) > 0:
                         self._tools_pending.clear() # Any chance tool calls could be interleaved across different outstanding responses?
                         await server_ws.send_json({
@@ -146,12 +199,33 @@ class RTMiddleTier:
                         })
                     if "response" in message:
                         replace = False
-                        for i, output in enumerate(reversed(message["response"]["output"])):
-                            if output["type"] == "function_call":
-                                message["response"]["output"].pop(i)
+                        # Process from the end to the beginning to avoid index issues when removing items
+                        outputs = message["response"]["output"]
+                        for i in range(len(outputs) - 1, -1, -1):
+                            if outputs[i]["type"] == "function_call":
+                                outputs.pop(i)
                                 replace = True
                         if replace:
-                            updated_message = json.dumps(message)                        
+                            updated_message = json.dumps(message)
+                            
+                # Add handlers for transcript logging  
+                case "conversation.item.input_audio_transcription.completed":
+                    # Log user transcript when completed
+                    if conversation_logger and "transcript" in message and message["transcript"].strip():
+                        conversation_logger.log_user_message(
+                            transcript=message["transcript"].strip(),
+                            metadata={"session_id": self._current_session_id, "item_id": message.get("item_id")}
+                        )
+                
+                case "response.audio_transcript.delta":
+                    # Buffer assistant audio transcript
+                    if "delta" in message:
+                        self._assistant_response_buffer += message["delta"]
+                
+                case "response.text.delta":
+                    # Buffer assistant text response
+                    if "delta" in message:
+                        self._assistant_response_buffer += message["delta"]
 
         return updated_message
 
@@ -174,6 +248,8 @@ class RTMiddleTier:
                         session["voice"] = self.voice_choice
                     session["tool_choice"] = "auto" if len(self.tools) > 0 else "none"
                     session["tools"] = [tool.schema for tool in self.tools.values()]
+                    logger.info(f"Session update - tool_choice: {session['tool_choice']}, tools count: {len(session.get('tools', []))}")
+                    logger.info(f"Available tool names: {[tool['name'] for tool in session.get('tools', [])]}")
                     updated_message = json.dumps(message)
 
         return updated_message

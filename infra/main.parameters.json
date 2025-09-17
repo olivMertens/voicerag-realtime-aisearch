@@ -99,6 +99,9 @@
     "realtimeDeploymentCapacity": {
       "value": "${AZURE_OPENAI_REALTIME_DEPLOYMENT_CAPACITY=1}"
     },
+    "audioDeploymentCapacity": {
+      "value": "${AZURE_OPENAI_AUDIO_DEPLOYMENT_CAPACITY=100}"
+    },
     "embeddingDeploymentCapacity": {
       "value": "${AZURE_OPENAI_EMB_DEPLOYMENT_CAPACITY=30}"
     },

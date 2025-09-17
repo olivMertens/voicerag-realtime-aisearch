@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from pathlib import Path
 from aiohttp import web
 from azure.core.credentials import AzureKeyCredential
@@ -7,11 +8,26 @@ from azure.identity import AzureDeveloperCliCredential, DefaultAzureCredential
 from dotenv import load_dotenv
 from ragtools import attach_rag_tools
 
-# Import telemetry
+    # Import telemetry and setup Azure Monitor
 try:
-    from telemetry import telemetry
+    from telemetry import setup_azure_monitor, get_telemetry_data, telemetry
+    azure_monitor_configured = False
 except ImportError:
     telemetry = None
+    azure_monitor_configured = False
+
+# Import conversation logger
+try:
+    from conversation_logger import conversation_logger
+except ImportError:
+    conversation_logger = None
+
+# Import chat handler for GPT-4o Audio API
+try:
+    from chat_handler import chat_handler
+except ImportError:
+    chat_handler = None
+    logging.warning("Chat handler not available")
 
 from rtmt import RTMiddleTier
 
@@ -24,9 +40,22 @@ HOST = "0.0.0.0" if RUNNING_IN_PRODUCTION else "localhost"
 PORT = 8000
 
 async def create_app():
+    global azure_monitor_configured
+    
     if not os.environ.get("RUNNING_IN_PRODUCTION"):
         logger.info("Running in development mode, loading from .env file")
         load_dotenv()
+
+    # Setup Azure Monitor OpenTelemetry if not already configured
+    if not azure_monitor_configured:
+        try:
+            azure_monitor_configured = setup_azure_monitor()
+            if azure_monitor_configured:
+                logger.info("✅ Azure Monitor OpenTelemetry integration enabled")
+            else:
+                logger.info("⚠️ Azure Monitor not configured - telemetry will use local storage only")
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to setup Azure Monitor: {e}")
 
     llm_key = os.environ.get("AZURE_OPENAI_API_KEY")
     search_key = os.environ.get("AZURE_SEARCH_API_KEY")
@@ -51,30 +80,53 @@ async def create_app():
         endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
         deployment=os.environ["AZURE_OPENAI_REALTIME_DEPLOYMENT"],
         voice_choice=os.environ.get("AZURE_OPENAI_REALTIME_VOICE_CHOICE") or "alloy",
+        transcription_language=os.environ.get("AZURE_OPENAI_REALTIME_TRANSCRIPTION_LANGUAGE", "auto")
         )
-    rtmt.system_message = "Vous êtes un conseiller en assurance bienveillant et professionnel pour MAIF et MAAF. Vous répondez uniquement aux questions basées sur les informations de la base de connaissances, accessible avec l'outil 'search'. " + \
-                          "L'utilisateur écoute vos réponses en audio, il est donc *essentiel* que les réponses soient courtes et claires, idéalement une phrase si possible. " + \
-                          "Ne jamais mentionner les noms de fichiers, sources ou clés à voix haute. " + \
-                          "Règles de fonctionnement à respecter : \n" + \
-                          "- Vous pouvez répondre en français et en anglais selon la langue utilisée par l'utilisateur \n" + \
-                          "- Vous êtes un conseiller pour les assurances MAIF et MAAF uniquement \n" + \
-                          "- Adoptez un ton professionnel, rassurant et empathique, comme un vrai conseiller en assurance \n" + \
-                          "- Toujours vouvoyer les clients et utiliser 'Madame' ou 'Monsieur' selon le contexte approprié \n" + \
-                          "- Ne jamais tutoyer, maintenir un langage soutenu et respectueux \n" + \
-                          "- Toujours utiliser l'outil 'search' pour rechercher dans la base de connaissances avant de répondre \n" + \
-                          "- Toujours utiliser l'outil 'report_grounding' pour citer la source des informations de la base de connaissances \n" + \
-                          "- Utilisez les outils API disponibles pour récupérer les informations clients : \n" + \
-                          "  * Outil 'get_policies' pour consulter les polices d'assurance \n" + \
-                          "  * Outil 'get_claims' pour consulter les sinistres déclarés \n" + \
-                          "  * Outil 'get_agencies' pour trouver les agences locales \n" + \
-                          "  * Outil 'get_contact_info' pour les informations de contact MAIF/MAAF \n" + \
-                          "- Couvrez tous les domaines MAIF/MAAF : auto, habitation, moto, assurance vie, retraite, prévoyance, santé \n" + \
-                          "- Pour les déclarations de sinistre, orientez vers les canaux officiels (applications mobile, numéros de téléphone) \n" + \
-                          "- Soyez précis sur les garanties, franchises et modalités d'indemnisation \n" + \
-                          "- Si l'information n'est pas dans la base de connaissances, dites-le clairement et orientez vers un conseiller \n" + \
-                          "- Réponses les plus courtes possibles tout en restant informatives et utiles \n" + \
-                          "- En fin de conversation, vous pouvez dire 'Merci de votre confiance en MAIF/MAAF, nous sommes là pour vous protéger' \n" + \
-                          "- Maintenez toujours un ton professionnel et bienveillant, caractéristique du service client MAIF/MAAF"
+    rtmt.system_message = """You are a professional and caring insurance advisor for MAIF and MAAF insurance companies.
+
+CRITICAL MANDATORY RULE: You MUST ALWAYS use the 'search' tool FIRST before answering ANY insurance-related question. NO exceptions.
+
+WORKFLOW FOR EVERY RESPONSE:
+1. ALWAYS call 'search' tool first with relevant keywords from the user's question
+2. Wait for search results from the knowledge base
+3. Use 'report_grounding' tool to cite sources with confidence level and summary
+4. Then provide your response based ONLY on the retrieved information
+
+AVAILABLE TOOLS - USE THEM:
+- 'search': Search the knowledge base (MANDATORY for all insurance questions)
+- 'report_grounding': Cite information sources (MANDATORY after search) - includes confidence level and summary for UI display
+- 'get_policies': Check insurance policies
+- 'get_claims': Check declared claims
+- 'get_agencies': Find local agencies
+- 'get_contact_info': Get MAIF/MAAF contact information
+
+BEHAVIOR GUIDELINES:
+- Respond in the same language as the user (French or English)
+- Professional, reassuring, and empathetic tone like a real insurance advisor
+- Always use formal address ("vous" in French, formal tone in English)
+- Keep responses concise and clear for audio listening
+- Never mention file names, sources, or technical keys in audio responses
+- Cover all MAIF/MAAF domains: auto, home, motorcycle, life insurance, retirement, health
+- For claims declaration, direct to official channels (mobile apps, phone numbers)
+- Be precise about coverage, deductibles, and compensation terms
+- If information is not in knowledge base, say so clearly and refer to human advisor
+
+EXAMPLE MANDATORY WORKFLOW:
+User: "What does MAIF auto insurance cover?"
+1. I MUST call search("MAIF auto insurance coverage benefits guarantees")
+2. I MUST call report_grounding with:
+   - sources: [list of chunk IDs actually used]
+   - confidence_level: "high" (if sources are comprehensive and relevant)
+   - summary: "Coverage details for MAIF auto insurance from official documentation"
+3. Then provide answer based on retrieved information
+
+GROUNDING BEST PRACTICES:
+- Use confidence_level: "high" for official policy documents, "medium" for general info, "low" for partial matches
+- Provide helpful summary describing what information was extracted
+- Only include sources that were actually used in your response
+- The UI will display these sources to help users verify information
+
+REMEMBER: NEVER answer insurance questions without using the 'search' tool first. This is MANDATORY."""
 
 
     attach_rag_tools(rtmt,
@@ -93,13 +145,236 @@ async def create_app():
     
     # Add telemetry endpoint
     async def telemetry_handler(request):
-        if telemetry:
-            data = telemetry.get_telemetry_data()
+        try:
+            data = get_telemetry_data()
             return web.json_response(data)
-        else:
-            return web.json_response({"error": "Telemetry not available"}, status=503)
+        except Exception as e:
+            return web.json_response({"error": f"Telemetry error: {str(e)}"}, status=503)
     
     app.router.add_get('/api/telemetry', telemetry_handler)
+    
+    # Add GPT-4o Audio chat endpoint
+    if chat_handler:
+        app.router.add_post('/api/chat', chat_handler.handle_chat)
+    
+    # Add conversation logging endpoints
+    if conversation_logger:
+        async def list_conversations_handler(request):
+            try:
+                sessions = conversation_logger.list_sessions()
+                return web.json_response({"sessions": sessions})
+            except Exception as e:
+                return web.json_response({"error": str(e)}, status=500)
+        
+        async def get_conversation_handler(request):
+            try:
+                session_id = request.match_info['session_id']
+                history = conversation_logger.get_session_history(session_id)
+                if history:
+                    return web.json_response(history)
+                else:
+                    return web.json_response({"error": "Session not found"}, status=404)
+            except Exception as e:
+                return web.json_response({"error": str(e)}, status=500)
+        
+        app.router.add_get('/api/conversations', list_conversations_handler)
+        app.router.add_get('/api/conversations/{session_id}', get_conversation_handler)
+    
+    # Add user transcript logging handler  
+    async def user_transcript_handler(request):
+        """Handle user speech-to-text transcript logging"""
+        try:
+            data = await request.json()
+            
+            # Log the user transcript
+            log_entry = {
+                "timestamp": data.get("timestamp", time.time()),
+                "type": data.get("type", "user_question"),
+                "transcript": data.get("transcript", ""),
+                "session_id": data.get("session_id", "default"),
+                "source": "speech_to_text"
+            }
+            
+            # Log to conversation logger if available
+            if conversation_logger:
+                try:
+                    conversation_logger.log_conversation(
+                        session_id=log_entry["session_id"],
+                        role="user",
+                        content=log_entry["transcript"],
+                        metadata={
+                            "source": "speech_to_text",
+                            "timestamp": log_entry["timestamp"]
+                        }
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to log to conversation logger: {e}")
+            
+            # Log to standard logger as well
+            logger.info(f"🎤 User transcript: [{log_entry['session_id']}] {log_entry['transcript']}")
+            
+            return web.json_response({"status": "success", "logged": True})
+            
+        except Exception as e:
+            logger.error(f"User transcript handler error: {e}")
+            return web.json_response({"error": f"Failed to log transcript: {str(e)}"}, status=500)
+    
+    # Add voice settings handler
+    async def voice_settings_handler(request):
+        """Handle voice preference updates for both Realtime and GPT-Audio"""
+        try:
+            data = await request.json()
+            new_voice = data.get("voice", "alloy")
+            mode = data.get("mode", "both")  # "text", "realtime", or "both"
+            
+            # Validate voice choice - all 10 GPT-Audio voices
+            valid_voices = ["alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"]
+            if new_voice not in valid_voices:
+                return web.json_response(
+                    {"error": f"Invalid voice. Must be one of: {', '.join(valid_voices)}"},
+                    status=400
+                )
+            
+            updated_services = {}
+            
+            # Update RTMiddleTier voice choice (for Realtime API)
+            if mode in ["realtime", "both"] and hasattr(rtmt, 'voice_choice'):
+                rtmt.voice_choice = new_voice
+                logger.info(f"🎵 Realtime API voice updated to: {new_voice}")
+                updated_services["realtime_api"] = True
+            
+            # Update chat handler voice preference (for GPT-Audio)
+            if mode in ["text", "both"] and chat_handler and hasattr(chat_handler, 'voice_choice'):
+                chat_handler.voice_choice = new_voice
+                logger.info(f"🎵 GPT-Audio voice updated to: {new_voice}")
+                updated_services["gpt_audio"] = True
+            
+            return web.json_response({
+                "success": True,
+                "voice": new_voice,
+                "mode": mode,
+                "message": f"Voice updated to {new_voice} for {mode} mode(s)",
+                "updated": updated_services
+            })
+            
+        except Exception as e:
+            logger.error(f"Voice settings error: {e}")
+            return web.json_response(
+                {"error": f"Voice update failed: {str(e)}"},
+                status=500
+            )
+    
+    # Register routes
+    app.router.add_post('/api/user-transcript', user_transcript_handler)
+    app.router.add_post('/api/voice-settings', voice_settings_handler)
+    async def conversations_list_handler(request):
+        try:
+            if conversation_logger:
+                sessions = conversation_logger.list_sessions()
+                return web.json_response({"sessions": sessions})
+            else:
+                return web.json_response({"error": "Conversation logger not available"}, status=503)
+        except Exception as e:
+            return web.json_response({"error": f"Conversation list error: {str(e)}"}, status=500)
+    
+    async def conversation_detail_handler(request):
+        try:
+            session_id = request.match_info.get('session_id')
+            if conversation_logger and session_id:
+                history = conversation_logger.get_session_history(session_id)
+                if history:
+                    return web.json_response(history)
+                else:
+                    return web.json_response({"error": "Session not found"}, status=404)
+            else:
+                return web.json_response({"error": "Invalid request"}, status=400)
+        except Exception as e:
+            return web.json_response({"error": f"Conversation detail error: {str(e)}"}, status=500)
+    
+    async def user_transcript_handler(request):
+        """Handle user speech-to-text transcript logging"""
+        try:
+            data = await request.json()
+            
+            # Log the user transcript
+            log_entry = {
+                "timestamp": data.get("timestamp", time.time()),
+                "type": data.get("type", "user_question"),
+                "transcript": data.get("transcript", ""),
+                "session_id": data.get("session_id", "default"),
+                "source": "speech_to_text"
+            }
+            
+            # Log to conversation logger if available
+            if conversation_logger:
+                try:
+                    conversation_logger.log_conversation(
+                        session_id=log_entry["session_id"],
+                        role="user",
+                        content=log_entry["transcript"],
+                        metadata={
+                            "source": "speech_to_text",
+                            "timestamp": log_entry["timestamp"]
+                        }
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to log to conversation logger: {e}")
+            
+            # Log to standard logger as well
+            logger.info(f"🎤 User transcript: [{log_entry['session_id']}] {log_entry['transcript']}")
+            
+            return web.json_response({"status": "success", "logged": True})
+            
+        except Exception as e:
+            logger.error(f"User transcript handler error: {e}")
+            return web.json_response({"error": f"Failed to log transcript: {str(e)}"}, status=500)
+    
+    async def voice_settings_handler(request):
+        """Handle voice preference updates for both Realtime and GPT-Audio"""
+        try:
+            data = await request.json()
+            new_voice = data.get("voice", "alloy")
+            
+            # Validate voice choice - all 10 GPT-Audio voices
+            valid_voices = ["alloy", "ash", "ballad", "cedar", "coral", "echo", "marin", "sage", "shimmer", "verse"]
+            if new_voice not in valid_voices:
+                return web.json_response(
+                    {"error": f"Invalid voice. Must be one of: {', '.join(valid_voices)}"},
+                    status=400
+                )
+            
+            # Update RTMiddleTier voice choice (for Realtime API)
+            if hasattr(rtmt, 'voice_choice'):
+                rtmt.voice_choice = new_voice
+                logger.info(f"🎵 Realtime API voice updated to: {new_voice}")
+            
+            # Update chat handler voice preference (for GPT-Audio)
+            if chat_handler and hasattr(chat_handler, 'voice_choice'):
+                chat_handler.voice_choice = new_voice
+                logger.info(f"🎵 GPT-Audio voice updated to: {new_voice}")
+            
+            return web.json_response({
+                "success": True,
+                "voice": new_voice,
+                "message": f"Voice updated to {new_voice}",
+                "updated": {
+                    "realtime_api": hasattr(rtmt, 'voice_choice'),
+                    "gpt_audio": chat_handler and hasattr(chat_handler, 'voice_choice')
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Voice settings error: {e}")
+            return web.json_response(
+                {"error": f"Voice update failed: {str(e)}"},
+                status=500
+            )
+    
+    app.router.add_get('/api/telemetry', telemetry_handler)
+    app.router.add_get('/api/conversations', conversations_list_handler)
+    app.router.add_get('/api/conversations/{session_id}', conversation_detail_handler)
+    app.router.add_post('/api/user-transcript', user_transcript_handler)
+    app.router.add_post('/api/voice-settings', voice_settings_handler)
     
     current_directory = Path(__file__).parent
     app.add_routes([web.get('/', lambda _: web.FileResponse(current_directory / 'static/index.html'))])

@@ -119,6 +119,15 @@ param openAiServiceLocation string = 'eastus2'
 param modelType string
 param openAiRealtimeModelVersion string = '2025-08-28'
 param realtimeDeploymentCapacity int
+
+@description('Type of the Azure OpenAI text/audio model to deploy')
+@allowed([
+    'gpt-audio'          // GPT-4o Audio for text and audio processing
+  ])
+param audioModelType string = 'gpt-audio'
+param openAiAudioModelVersion string = '2025-01-01-preview'
+param audioDeploymentCapacity int = 100
+
 param embeddingDeploymentCapacity int
 
 param tenantId string = tenant().tenantId
@@ -181,6 +190,21 @@ module logAnalytics 'br/public:avm/res/operational-insights/workspace:0.7.0' = {
   }
 }
 
+// Application Insights for OpenTelemetry monitoring
+module applicationInsights 'br/public:avm/res/insights/component:0.4.0' = {
+  name: 'application-insights'
+  scope: resourceGroup
+  params: {
+    name: '${environmentName}-ai'
+    location: location
+    tags: tags
+    workspaceResourceId: logAnalytics.outputs.resourceId
+    applicationType: 'web'
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
+  }
+}
+
 // Azure container apps resources
 
 // User-assigned identity for pulling images from ACR
@@ -229,6 +253,8 @@ module acaApi 'core/host/container-app-upsert.bicep' = {
     env: {
       // CORS support, for frontends on other hosts
       RUNNING_IN_PRODUCTION: 'true'
+      // OpenTelemetry and Application Insights
+      APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.outputs.connectionString
       // For using managed identity to access Azure resources. See
     }
   }
@@ -266,9 +292,15 @@ module acaBackend 'core/host/container-app-upsert.bicep' = {
       AZURE_SEARCH_EMBEDDING_FIELD: searchEmbeddingField
       AZURE_SEARCH_USE_VECTOR_QUERY: searchUseVectorQuery
       AZURE_OPENAI_ENDPOINT: reuseExistingOpenAi ? openAiEndpoint : openAi.outputs.endpoint
+      AZURE_OPENAI_API_VERSION: openAiAudioModelVersion
+      AZURE_OPENAI_REALTIME_API_VERSION: '2025-04-01-preview'
       AZURE_OPENAI_REALTIME_DEPLOYMENT: reuseExistingOpenAi ? openAiRealtimeDeployment : openAiDeployments[0].name
+      AZURE_OPENAI_AUDIO_DEPLOYMENT: reuseExistingOpenAi ? 'gpt-4o-audio-preview' : openAiDeployments[1].name
+      AZURE_OPENAI_EMBEDDING_DEPLOYMENT: reuseExistingOpenAi ? 'text-embedding-3-large' : openAiDeployments[2].name
       AZURE_OPENAI_REALTIME_VOICE_CHOICE: openAiRealtimeVoiceChoice
       AZURE_API_ENDPOINT: acaApi.outputs.uri
+      // OpenTelemetry and Application Insights
+      APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.outputs.connectionString
       // CORS support, for frontends on other hosts
       RUNNING_IN_PRODUCTION: 'true'
       // For using managed identity to access Azure resources. See https://github.com/microsoft/azure-container-apps/issues/442
@@ -290,6 +322,18 @@ var openAiDeployments = [
     sku: {
       name: 'GlobalStandard'
       capacity: realtimeDeploymentCapacity
+    }
+  }
+  {
+    name: audioModelType
+    model: {
+      format: 'OpenAI'
+      name: audioModelType
+      version: openAiAudioModelVersion
+    }
+    sku: {
+      name: 'GlobalStandard'
+      capacity: audioDeploymentCapacity
     }
   }
   {
@@ -460,6 +504,9 @@ output AZURE_OPENAI_ENDPOINT string = reuseExistingOpenAi ? openAiEndpoint : ope
 output AZURE_OPENAI_REALTIME_DEPLOYMENT string = reuseExistingOpenAi
   ? openAiRealtimeDeployment
   : openAiDeployments[0].name
+output AZURE_OPENAI_AUDIO_DEPLOYMENT string = reuseExistingOpenAi
+  ? 'gpt-audio'
+  : openAiDeployments[1].name
 output AZURE_OPENAI_REALTIME_VOICE_CHOICE string = openAiRealtimeVoiceChoice
 output AZURE_OPENAI_EMBEDDING_DEPLOYMENT string = embedModel
 output AZURE_OPENAI_EMBEDDING_MODEL string = embedModel
@@ -479,6 +526,8 @@ output AZURE_STORAGE_ACCOUNT string = storage.?outputs.?name != null ? storage.o
 output AZURE_STORAGE_CONNECTION_STRING string = storage.?outputs.?name != null ? 'ResourceId=/subscriptions/${subscription().subscriptionId}/resourceGroups/${storageResourceGroup.name}/providers/Microsoft.Storage/storageAccounts/${storage.outputs.name}' : ''
 output AZURE_STORAGE_CONTAINER string = storageContainerName
 output AZURE_STORAGE_RESOURCE_GROUP string = storageResourceGroup.name
+
+output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsights.outputs.connectionString
 
 output BACKEND_URI string = acaBackend.?outputs.?uri != null ? acaBackend.outputs.uri : ''
 output API_URI string = acaApi.?outputs.?uri != null ? acaApi.outputs.uri : ''

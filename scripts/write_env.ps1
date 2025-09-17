@@ -17,6 +17,7 @@ $azureSearchTitleField = azd env get-value AZURE_SEARCH_TITLE_FIELD
 $azureSearchContentField = azd env get-value AZURE_SEARCH_CONTENT_FIELD
 $azureSearchEmbeddingField = azd env get-value AZURE_SEARCH_EMBEDDING_FIELD
 $azureSearchUseVectorQuery = azd env get-value AZURE_SEARCH_USE_VECTOR_QUERY
+$azureApiEndpoint = azd env get-value AZURE_API_ENDPOINT
 
 Add-Content -Path $envFilePath -Value "AZURE_OPENAI_ENDPOINT=$azureOpenAiEndpoint"
 Add-Content -Path $envFilePath -Value "AZURE_OPENAI_REALTIME_DEPLOYMENT=$azureOpenAiRealtimeDeployment"
@@ -31,3 +32,4 @@ Add-Content -Path $envFilePath -Value "AZURE_SEARCH_CONTENT_FIELD=$azureSearchCo
 Add-Content -Path $envFilePath -Value "AZURE_SEARCH_EMBEDDING_FIELD=$azureSearchEmbeddingField"
 Add-Content -Path $envFilePath -Value "AZURE_SEARCH_USE_VECTOR_QUERY=$azureSearchUseVectorQuery"
 Add-Content -Path $envFilePath -Value "AZURE_TENANT_ID=$azureTenantId"
+Add-Content -Path $envFilePath -Value "AZURE_API_ENDPOINT=$azureApiEndpoint"

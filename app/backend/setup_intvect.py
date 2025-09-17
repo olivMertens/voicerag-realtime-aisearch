@@ -66,51 +66,103 @@ def setup_index(azure_credential, index_name, azure_search_endpoint, azure_stora
             logger.info(f"Creating index: {index_name}")
             logger.info(f"Using embedding model: {azure_openai_embedding_model} with {azure_openai_embeddings_dimensions} dimensions")
             
-            # Create the search index with hybrid search support (semantic + vector)
+            # Create the enhanced search index with optimized hybrid search support
             search_index = SearchIndex(
                 name=index_name,
                 fields=[
+                    # Key field - filterable for grounding but not searchable
                     SimpleField(name="chunk_id", type=SearchFieldDataType.String, key=True, sortable=True, filterable=True),
-                    SimpleField(name="category", type=SearchFieldDataType.String, filterable=True, facetable=True),
-                    SearchableField(name="title", type=SearchFieldDataType.String, searchable=True),
-                    SearchableField(name="chunk", type=SearchFieldDataType.String, searchable=True),
+                    
+                    # Category field - optimized for filtering and faceting
+                    SimpleField(name="category", type=SearchFieldDataType.String, filterable=True, facetable=True, sortable=True),
+                    
+                    # Enhanced title field - optimized for semantic search
+                    SearchableField(
+                        name="title", 
+                        type=SearchFieldDataType.String, 
+                        searchable=True, 
+                        sortable=True, 
+                        filterable=True,
+                        analyzer_name="fr.microsoft"  # French analyzer for better language support
+                    ),
+                    
+                    # Enhanced content field - optimized for semantic search and highlighting
+                    SearchableField(
+                        name="chunk", 
+                        type=SearchFieldDataType.String, 
+                        searchable=True,
+                        analyzer_name="fr.microsoft",  # French analyzer for better language support
+                        highlight=True  # Enable highlighting for better UX
+                    ),
+                    
+                    # Optimized vector field with enhanced configuration
                     SearchField(
                         name="text_vector", 
                         type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                         vector_search_dimensions=azure_openai_embeddings_dimensions,
-                        vector_search_profile_name="my-vector-config",
+                        vector_search_profile_name="enhanced-vector-config",
                         stored=True,
                         retrievable=True,
                         searchable=True,
                         hidden=False
                     )
                 ],
+                # Enhanced vector search configuration for optimal performance and quality
                 vector_search=VectorSearch(
                     algorithms=[
+                        # Primary HNSW algorithm with optimized parameters
                         HnswAlgorithmConfiguration(
-                            name="my-hnsw-vector-config",
+                            name="optimized-hnsw-config",
                             parameters=HnswParameters(
                                 metric=VectorSearchAlgorithmMetric.COSINE,
-                                m=4,  # Reduced for better memory usage
+                                m=16,  # Increased for better recall (trade-off with memory)
+                                ef_construction=800,  # Higher for better index quality
+                                ef_search=400  # Optimized for search performance
+                            )
+                        ),
+                        # Alternative algorithm for different use cases
+                        HnswAlgorithmConfiguration(
+                            name="balanced-hnsw-config",
+                            parameters=HnswParameters(
+                                metric=VectorSearchAlgorithmMetric.COSINE,
+                                m=8,  # Balanced approach
                                 ef_construction=400,
-                                ef_search=500
+                                ef_search=200
                             )
                         )
                     ],
                     profiles=[
                         VectorSearchProfile(
-                            name="my-vector-config",
-                            algorithm_configuration_name="my-hnsw-vector-config"
+                            name="enhanced-vector-config",
+                            algorithm_configuration_name="optimized-hnsw-config"
+                        ),
+                        VectorSearchProfile(
+                            name="balanced-vector-config",
+                            algorithm_configuration_name="balanced-hnsw-config"
                         )
                     ]
                 ),
+                # Enhanced semantic search configuration with L2 ranking
                 semantic_search=SemanticSearch(
                     configurations=[
                         SemanticConfiguration(
                             name="default",
                             prioritized_fields=SemanticPrioritizedFields(
                                 title_field=SemanticField(field_name="title"),
-                                content_fields=[SemanticField(field_name="chunk")]
+                                content_fields=[SemanticField(field_name="chunk")],
+                                keywords_fields=[SemanticField(field_name="category")]  # Enhanced with category for better context
+                            )
+                        ),
+                        # Alternative semantic configuration for different scenarios
+                        SemanticConfiguration(
+                            name="enhanced",
+                            prioritized_fields=SemanticPrioritizedFields(
+                                title_field=SemanticField(field_name="title"),
+                                content_fields=[
+                                    SemanticField(field_name="chunk"),
+                                    SemanticField(field_name="title")  # Also search in title content
+                                ],
+                                keywords_fields=[SemanticField(field_name="category")]
                             )
                         )
                     ]

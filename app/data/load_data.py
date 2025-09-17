@@ -16,6 +16,8 @@ def get_policies_data() -> List[Dict[str, Any]]:
             "id": 1,
             "policy": "MAIF-AUTO-001",
             "name": "Jean Dupont",
+            "first_name": "Jean",
+            "last_name": "Dupont",
             "type": "Auto",
             "status": "Active",
             "premium": 650.00,
@@ -28,6 +30,8 @@ def get_policies_data() -> List[Dict[str, Any]]:
             "id": 2,
             "policy": "MAAF-HAB-002",
             "name": "Marie Martin",
+            "first_name": "Marie",
+            "last_name": "Martin",
             "type": "Habitation",
             "status": "Active",
             "premium": 450.00,
@@ -39,12 +43,14 @@ def get_policies_data() -> List[Dict[str, Any]]:
         {
             "id": 3,
             "policy": "MAIF-VIE-003",
-            "name": "Pierre Bernard",
+            "name": "Pierre Leroy",
+            "first_name": "Pierre",
+            "last_name": "Leroy",
             "type": "Assurance Vie",
             "status": "Active",
             "premium": 1200.00,
             "coverage": "PER Responsable et Solidaire",
-            "capital": 85000.00,
+            "capital": 77000.00,
             "start_date": "2020-03-10",
             "end_date": "2050-03-10"
         },
@@ -52,6 +58,8 @@ def get_policies_data() -> List[Dict[str, Any]]:
             "id": 4,
             "policy": "MAAF-SANTE-004",
             "name": "Sophie Dubois",
+            "first_name": "Sophie",
+            "last_name": "Dubois",
             "type": "Santé",
             "status": "Active",
             "premium": 380.00,
@@ -64,6 +72,8 @@ def get_policies_data() -> List[Dict[str, Any]]:
             "id": 5,
             "policy": "MAIF-MOTO-005",
             "name": "Julien Moreau",
+            "first_name": "Julien",
+            "last_name": "Moreau",
             "type": "Moto",
             "status": "Active",
             "premium": 320.00,
@@ -71,6 +81,62 @@ def get_policies_data() -> List[Dict[str, Any]]:
             "vehicle": "Yamaha MT-07 2021",
             "start_date": "2024-04-15",
             "end_date": "2025-04-14"
+        },
+        {
+            "id": 6,
+            "policy": "MAAF-AUTO-006",
+            "name": "Catherine Leroy",
+            "first_name": "Catherine",
+            "last_name": "Leroy",
+            "type": "Auto",
+            "status": "Active",
+            "premium": 720.00,
+            "coverage": "Tous Risques Confort+",
+            "vehicle": "Peugeot 3008 2022",
+            "start_date": "2024-02-01",
+            "end_date": "2025-01-31"
+        },
+        {
+            "id": 7,
+            "policy": "MAIF-HAB-007",
+            "name": "Michel Rousseau",
+            "first_name": "Michel",
+            "last_name": "Rousseau",
+            "type": "Habitation",
+            "status": "Active",
+            "premium": 580.00,
+            "coverage": "Multirisque Différence",
+            "property": "Maison 4 pièces Bordeaux",
+            "start_date": "2023-09-01",
+            "end_date": "2024-08-31"
+        },
+        {
+            "id": 8,
+            "policy": "MAAF-PROF-008",
+            "name": "Anne Lefebvre",
+            "first_name": "Anne",
+            "last_name": "Lefebvre",
+            "type": "Professionnelle",
+            "status": "Active",
+            "premium": 890.00,
+            "coverage": "RC Professionnelle Enseignant",
+            "activity": "Professeure des écoles",
+            "start_date": "2024-01-01",
+            "end_date": "2024-12-31"
+        },
+        {
+            "id": 9,
+            "policy": "MAAF-HAB-003",
+            "name": "Isabelle Durand",
+            "first_name": "Isabelle",
+            "last_name": "Durand",
+            "type": "Habitation",
+            "status": "Active",
+            "premium": 395.00,
+            "coverage": "Tempo Classique",
+            "property": "Appartement 2 pièces Marseille",
+            "start_date": "2024-03-01",
+            "end_date": "2025-02-28"
         }
     ]
 
@@ -84,34 +150,336 @@ def get_claims_data() -> List[Dict[str, Any]]:
             "id": "CLAIM-001",
             "policy_number": "MAIF-AUTO-001",
             "holder": "Jean Dupont",
+            "holder_first_name": "Jean",
+            "holder_last_name": "Dupont",
             "type": "Auto",
             "description": "Collision avec un autre véhicule",
             "status": "En cours d'expertise",
             "estimated_amount": 2500.00,
             "declaration_date": "2024-08-15",
-            "incident_date": "2024-08-12"
+            "incident_date": "2024-08-12",
+            "long_description": "Collision lors d'un dépassement sur la D906",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-001",
+                    "date": "2024-08-15",
+                    "time": "09:15",
+                    "duration": "18 minutes",
+                    "agent": "Thomas Durand",
+                    "summary": "Déclaration de sinistre auto - collision. M. Dupont déclare une collision lors d'un dépassement sur la D906. Véhicule endommagé à l'avant droit.",
+                    "decisions": [
+                        "Sinistre accepté - responsabilité partagée présumée",
+                        "Expert auto désigné: M. Leblanc",
+                        "RDV expertise fixé au 20/08"
+                    ],
+                    "next_actions": "Envoi constat amiable + photos demandées"
+                },
+                {
+                    "call_id": "CALL-002-001",
+                    "date": "2024-08-22",
+                    "time": "14:45",
+                    "duration": "12 minutes",
+                    "agent": "Thomas Durand",
+                    "summary": "Suivi expertise. Rapport expert reçu. Estimation dégâts: 2500€. Discussion responsabilités avec autre assureur en cours.",
+                    "decisions": [
+                        "Devis garage validé: Garage Martin",
+                        "Attente accord responsabilité adverse",
+                        "Véhicule de remplacement accordé 5 jours"
+                    ],
+                    "next_actions": "Contact assureur adverse - retour prévu sous 48h"
+                }
+            ]
         },
         {
             "id": "CLAIM-002",
             "policy_number": "MAAF-HAB-002",
             "holder": "Marie Martin",
+            "holder_first_name": "Marie",
+            "holder_last_name": "Martin",
             "type": "Dégât des eaux",
             "description": "Fuite de canalisation dans la salle de bain",
             "status": "Indemnisé",
             "estimated_amount": 1800.00,
             "declaration_date": "2024-07-20",
-            "incident_date": "2024-07-18"
+            "incident_date": "2024-07-18",
+            "long_description": "Rupture de canalisation encastrée causant infiltration dans l'appartement du dessous",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-002",
+                    "date": "2024-07-20",
+                    "time": "10:30",
+                    "duration": "15 minutes",
+                    "agent": "Claire Moreau",
+                    "summary": "Déclaration dégât des eaux urgent. Mme Martin signale fuite importante salle de bain avec dégâts voisin du dessous. Plombier déjà intervenu.",
+                    "decisions": [
+                        "Dossier urgent accepté",
+                        "Expert dégât des eaux: Mme Petit",
+                        "RDV expertise immédiat - jour même 16h"
+                    ],
+                    "next_actions": "Coordination avec assurance voisin + photos"
+                },
+                {
+                    "call_id": "CALL-002-002",
+                    "date": "2024-07-25",
+                    "time": "16:20",
+                    "duration": "10 minutes",
+                    "agent": "Claire Moreau",
+                    "summary": "Rapport expertise reçu. Dégâts: 1800€ chez Mme Martin + 2200€ chez voisin. Responsabilité établie: défaut d'entretien exclu.",
+                    "decisions": [
+                        "Indemnisation 1800€ validée",
+                        "Franchise 150€ déduite",
+                        "Versement 1650€ autorisé"
+                    ],
+                    "next_actions": "Virement sous 72h après réception RIB"
+                }
+            ]
         },
         {
             "id": "CLAIM-003",
             "policy_number": "MAIF-MOTO-005",
             "holder": "Julien Moreau",
+            "holder_first_name": "Julien",
+            "holder_last_name": "Moreau",
             "type": "Vol",
             "description": "Vol de moto stationnée devant domicile",
-            "status": "Déclaré",
+            "status": "En cours d'enquête",
             "estimated_amount": 4500.00,
             "declaration_date": "2024-09-10",
-            "incident_date": "2024-09-09"
+            "incident_date": "2024-09-09",
+            "long_description": "Yamaha MT-07 volée dans la nuit, serrure forcée",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-003",
+                    "date": "2024-09-10",
+                    "time": "08:45",
+                    "duration": "20 minutes",
+                    "agent": "Pierre Lemoine",
+                    "summary": "Déclaration vol moto. M. Moreau découvre vol Yamaha MT-07 au matin. Serrure forcée, pas de trace d'effraction autre. Dépôt plainte effectué.",
+                    "decisions": [
+                        "Dossier vol accepté sous réserve enquête",
+                        "Délai enquête: 30 jours",
+                        "Valeur vénale: 4500€ (expertise à confirmer)"
+                    ],
+                    "next_actions": "Envoi copie plainte + carte grise originale"
+                },
+                {
+                    "call_id": "CALL-002-003",
+                    "date": "2024-09-15",
+                    "time": "11:30",
+                    "duration": "8 minutes",
+                    "agent": "Pierre Lemoine",
+                    "summary": "Point enquête. Gendarmerie: pas de retrouvailles. M. Moreau demande avancement dossier. Documents complets reçus.",
+                    "decisions": [
+                        "Enquête en cours - RAS",
+                        "Expertise valeur confirmée: 4500€",
+                        "Attente fin délai légal (encore 15 jours)"
+                    ],
+                    "next_actions": "Rappel automatique dans 2 semaines"
+                }
+            ]
+        },
+        {
+            "id": "CLAIM-004",
+            "policy_number": "MAAF-AUTO-006",
+            "holder": "Catherine Leroy",
+            "holder_first_name": "Catherine",
+            "holder_last_name": "Leroy",
+            "type": "Bris de glace",
+            "description": "Pare-brise fissuré par projection",
+            "status": "Réparé",
+            "estimated_amount": 350.00,
+            "declaration_date": "2024-08-05",
+            "incident_date": "2024-08-03",
+            "long_description": "Impact de gravillon sur autoroute A6, fissure étoilée de 15cm",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-004",
+                    "date": "2024-08-05",
+                    "time": "13:20",
+                    "duration": "5 minutes",
+                    "agent": "Julie Renaud",
+                    "summary": "Déclaration bris de glace rapide. Mme Leroy signale impact gravillon A6. Fissure étoilée 15cm côté passager. Conduite possible.",
+                    "decisions": [
+                        "Bris de glace accepté",
+                        "Réparation autorisée: Carglass partenaire",
+                        "Pas de franchise bris de glace"
+                    ],
+                    "next_actions": "RDV Carglass pris: 08/08 à 9h"
+                },
+                {
+                    "call_id": "CALL-002-004",
+                    "date": "2024-08-08",
+                    "time": "17:10",
+                    "duration": "3 minutes",
+                    "agent": "Julie Renaud",
+                    "summary": "Confirmation réparation. Carglass confirme réparation effectuée. Coût: 350€. Mme Leroy satisfaite du service.",
+                    "decisions": [
+                        "Réparation validée et payée",
+                        "Dossier clos",
+                        "Satisfaction client: 5/5"
+                    ],
+                    "next_actions": "Dossier archivé"
+                }
+            ]
+        },
+        {
+            "id": "CLAIM-005",
+            "policy_number": "MAIF-HAB-007",
+            "holder": "Michel Rousseau",
+            "holder_first_name": "Michel",
+            "holder_last_name": "Rousseau",
+            "type": "Tempête",
+            "description": "Dégâts suite à la tempête - tuiles arrachées",
+            "status": "En cours d'indemnisation",
+            "estimated_amount": 3200.00,
+            "declaration_date": "2024-09-01",
+            "incident_date": "2024-08-30",
+            "long_description": "Tempête de grêle avec vents à 120 km/h, toiture endommagée sur 40m²",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-005",
+                    "date": "2024-09-01",
+                    "time": "07:30",
+                    "duration": "14 minutes",
+                    "agent": "Antoine Mercier",
+                    "summary": "Déclaration dégâts tempête. M. Rousseau signale dégâts importants toiture suite tempête 30/08. Tuiles arrachées, gouttières endommagées. Bâchage effectué.",
+                    "decisions": [
+                        "Catastrophe naturelle - procédure accélérée",
+                        "Expert bâtiment: M. Roux",
+                        "RDV expertise: 05/09"
+                    ],
+                    "next_actions": "Photos + devis provisoire couvreur"
+                },
+                {
+                    "call_id": "CALL-002-005",
+                    "date": "2024-09-06",
+                    "time": "15:45",
+                    "duration": "12 minutes",
+                    "agent": "Antoine Mercier",
+                    "summary": "Retour expertise. Rapport M. Roux: dégâts 3200€. Toiture à refaire partiellement. Devis entreprise Martineau validé.",
+                    "decisions": [
+                        "Montant 3200€ accepté",
+                        "Franchise tempête: 380€",
+                        "Net à payer: 2820€"
+                    ],
+                    "next_actions": "Autorisation travaux + acompte 50%"
+                }
+            ]
+        },
+        {
+            "id": "CLAIM-006",
+            "policy_number": "MAAF-HAB-003",
+            "holder": "Isabelle Durand",
+            "holder_first_name": "Isabelle",
+            "holder_last_name": "Durand",
+            "type": "Dégât par animaux",
+            "description": "Dégâts causés par chiens et chats dans logement",
+            "status": "En cours d'expertise",
+            "estimated_amount": 2800.00,
+            "declaration_date": "2024-09-15",
+            "incident_date": "2024-09-10",
+            "long_description": "Dégâts importants causés par 3 chats et 2 chiens laissés seuls pendant 10 jours suite à hospitalisation d'urgence. Parquet griffé, papier peint déchiré, canapé et fauteuils détériorés, moquette souillée dans 2 chambres.",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-006",
+                    "date": "2024-09-15",
+                    "time": "14:30",
+                    "duration": "12 minutes",
+                    "agent": "Sophie Lambert",
+                    "summary": "Déclaration initiale du sinistre. Mme Durand explique la situation d'urgence médicale. Ouverture du dossier, attribution numéro CLAIM-006.",
+                    "decisions": [
+                        "Dossier accepté en garantie dégât par animaux domestiques",
+                        "Expert désigné: M. Petit",
+                        "RDV expertise fixé au 20/09"
+                    ],
+                    "next_actions": "Envoi courrier confirmation + questionnaire détaillé"
+                },
+                {
+                    "call_id": "CALL-002-006",
+                    "date": "2024-09-18",
+                    "time": "16:15",
+                    "duration": "8 minutes",
+                    "agent": "Marc Dubois",
+                    "summary": "Mme Durand demande report RDV expertise pour raisons médicales. Nouvelle date proposée.",
+                    "decisions": [
+                        "Report expertise au 25/09 à 10h",
+                        "Prolongation délai documents à 30 jours"
+                    ],
+                    "next_actions": "Confirmation nouveau RDV par SMS"
+                },
+                {
+                    "call_id": "CALL-003-006",
+                    "date": "2024-09-25",
+                    "time": "11:45",
+                    "duration": "15 minutes",
+                    "agent": "Sophie Lambert",
+                    "summary": "Rapport d'expertise reçu. Montant estimé 2800€. Discussion sur franchise et modalités d'indemnisation.",
+                    "decisions": [
+                        "Franchise 200€ applicable",
+                        "Indemnisation 2600€ validée",
+                        "Paiement sous 8 jours après envoi justificatifs"
+                    ],
+                    "next_actions": "Envoi formulaire règlement + RIB à fournir"
+                }
+            ]
+        },
+        {
+            "id": "CLAIM-007",
+            "policy_number": "MAIF-VIE-003",
+            "holder": "Pierre Leroy",
+            "holder_first_name": "Pierre",
+            "holder_last_name": "Leroy",
+            "type": "Rachat partiel",
+            "description": "Demande de rachat partiel pour financement travaux",
+            "status": "Traité",
+            "estimated_amount": 8000.00,
+            "declaration_date": "2024-08-20",
+            "incident_date": "2024-08-20",
+            "long_description": "Demande de rachat partiel de 8000€ sur contrat d'assurance vie pour financement travaux d'extension maison",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-007",
+                    "date": "2024-08-20",
+                    "time": "14:15",
+                    "duration": "25 minutes",
+                    "agent": "Sandrine Lefebvre",
+                    "summary": "M. Leroy demande rachat partiel 8000€ sur son contrat vie MAIF-VIE-003. Capital actuel: 85000€. Demande motivée par travaux extension maison.",
+                    "decisions": [
+                        "Rachat partiel 8000€ autorisé",
+                        "Valeur de rachat confirmée: 8000€",
+                        "Fiscalité applicable: 0€ (versements <8 ans)"
+                    ],
+                    "next_actions": "Formulaire rachat + RIB à retourner"
+                },
+                {
+                    "call_id": "CALL-002-007", 
+                    "date": "2024-08-25",
+                    "time": "10:30",
+                    "duration": "8 minutes",
+                    "agent": "Sandrine Lefebvre",
+                    "summary": "Documents rachat reçus et validés. Traitement en cours. M. Leroy confirme coordonnées bancaires pour virement.",
+                    "decisions": [
+                        "Dossier complet validé",
+                        "Virement 8000€ programmé",
+                        "Nouveau capital restant: 77000€"
+                    ],
+                    "next_actions": "Virement sous 48h + avenant contrat"
+                },
+                {
+                    "call_id": "CALL-003-007",
+                    "date": "2024-09-10",
+                    "time": "16:20",
+                    "duration": "6 minutes",
+                    "agent": "Sandrine Lefebvre",
+                    "summary": "Appel de courtoisie. M. Leroy confirme réception virement et avenant. Questions sur optimisation fiscale future des versements.",
+                    "decisions": [
+                        "Satisfaction client confirmée",
+                        "Conseil: versements programmés recommandés",
+                        "RDV conseiller prévu si souhaité"
+                    ],
+                    "next_actions": "Contact conseiller si besoin - dossier clos"
+                }
+            ]
         }
     ]
 
