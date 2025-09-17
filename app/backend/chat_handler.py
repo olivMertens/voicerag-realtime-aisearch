@@ -111,7 +111,7 @@ class ChatHandler:
                 "model": self.audio_deployment,
                 "messages": messages,
                 "temperature": 0.7,
-                "max_tokens": 2000,
+                "max_tokens": 8000,  # Increased for longer audio responses
                 "stream": False
             }
             
@@ -165,7 +165,7 @@ class ChatHandler:
                     "model": self.audio_deployment,
                     "messages": messages,
                     "temperature": 0.7,
-                    "max_tokens": 2000,
+                    "max_tokens": 8000,  # Increased for longer audio responses
                     "stream": False
                 }
                 

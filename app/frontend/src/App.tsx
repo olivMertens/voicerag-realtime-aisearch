@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mic, MicOff, Shield, Send, MessageSquare } from "lucide-react";
+import { Mic, MicOff, Shield, Send, MessageSquare, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -107,7 +107,9 @@ function App() {
         isGeneratingAudio, 
         lastAudioData,
         lastAudioFormat,
-        lastVoice 
+        lastVoice,
+        clearMessages: clearChatMessages,
+        messages: chatMessages
     } = useChatWithAudio();
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
@@ -225,8 +227,8 @@ function App() {
     const { reset: resetAudioPlayer, play: playAudio, stop: stopAudioPlayer } = useAudioPlayer();
     const { start: startAudioRecording, stop: stopAudioRecording } = useAudioRecorder({ onAudioRecorded: addUserAudio });
 
-    // GPT-4o Audio chat hook
-    const { messages } = useChat({
+    // GPT-Audio chat hook
+    const { messages: legacyMessages } = useChat({
         onNewMessage: (message) => {
             console.log('New chat message:', message);
         },
@@ -266,6 +268,43 @@ function App() {
         }
     };
 
+    // Function to restart/refresh conversation
+    const handleRestartConversation = () => {
+        // Add confirmation dialog
+        if (chatMessages.length > 0 || completedUserMessages.length > 0 || completedAssistantMessages.length > 0) {
+            if (!confirm('Êtes-vous sûr de vouloir redémarrer la conversation ? Tous les messages seront effacés.')) {
+                return;
+            }
+        }
+        
+        // Clear chat messages from text mode
+        clearChatMessages();
+        
+        // Clear realtime conversation transcripts
+        setCompletedUserMessages([]);
+        setCompletedAssistantMessages([]);
+        setCurrentUserTranscript('');
+        setCurrentAssistantTranscript('');
+        
+        // Clear text input
+        setTextMessage('');
+        
+        // Clear grounding and metadata
+        setGroundingFiles([]);
+        setSelectedFile(null);
+        setRagSources([]);
+        setEnhancedGrounding(null);
+        setCallHistoryMetadata(null);
+        setIsCallHistoryVisible(false);
+        
+        // Stop current recording if active
+        if (isRecording) {
+            onToggleListening();
+        }
+        
+        console.log('🔄 Conversation restarted');
+    };
+
     const { t } = useTranslation();
 
     return (
@@ -282,9 +321,20 @@ function App() {
                 <div className="absolute top-6 left-6 glass-card rounded-2xl p-4 floating-element pointer-events-auto">
                     <Shield className="h-16 w-16 text-white drop-shadow-lg" />
                 </div>
+                
+                {/* Refresh Button */}
+                <div className="absolute top-6 right-6 pointer-events-auto">
+                    <Button
+                        onClick={handleRestartConversation}
+                        className="glass-card hover:bg-white/20 text-white p-4 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:rotate-180 floating-element group"
+                        title="Redémarrer la conversation"
+                    >
+                        <RotateCcw className="h-6 w-6 transition-transform duration-300 group-hover:rotate-180" />
+                    </Button>
+                </div>
             </header>
 
-            <main className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6">
+            <main className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6 pb-20">
                 {/* Main title with glass effect */}
                 <div className="glass rounded-3xl p-8 mb-12 text-center max-w-4xl">
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white text-glow mb-4">
@@ -424,9 +474,9 @@ function App() {
                             </div>
                             
                             {/* Chat Messages Display */}
-                            {messages.length > 0 && (
+                            {chatMessages.length > 0 && (
                                 <div className="max-h-60 overflow-y-auto space-y-2 bg-white/10 rounded-2xl p-4">
-                                    {messages.map((message, index) => (
+                                    {chatMessages.map((message, index) => (
                                         <div
                                             key={index}
                                             className={`p-3 rounded-xl ${
@@ -455,7 +505,7 @@ function App() {
                             )}
                             
                             <p className="text-white/70 text-sm">
-                                💡 Tapez votre question et recevez une réponse audio générée par GPT-4o Audio
+                                💡 Tapez votre question et recevez une réponse audio générée par GPT-Audio
                             </p>
                         </div>
                     )}
@@ -478,7 +528,7 @@ function App() {
             </main>
 
             {/* Footer */}
-            <footer className="relative z-10 pb-6">
+            <footer className="absolute bottom-0 left-0 right-0 z-10 pb-4">
                 <div className="text-center">
                     <div className="glass-card rounded-2xl inline-block px-6 py-3">
                         <p className="text-white/90 font-medium">{t("app.footer")}</p>
