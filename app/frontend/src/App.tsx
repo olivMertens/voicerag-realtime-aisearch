@@ -228,7 +228,7 @@ function App() {
     const { start: startAudioRecording, stop: stopAudioRecording } = useAudioRecorder({ onAudioRecorded: addUserAudio });
 
     // GPT-Audio chat hook
-    const { messages: legacyMessages } = useChat({
+    useChat({
         onNewMessage: (message) => {
             console.log('New chat message:', message);
         },
