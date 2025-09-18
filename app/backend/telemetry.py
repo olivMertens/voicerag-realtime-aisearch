@@ -14,6 +14,7 @@ from opentelemetry.semconv.trace import SpanAttributes
 # Global telemetry data storage
 _tool_calls: List[Dict[str, Any]] = []
 _model_calls: List[Dict[str, Any]] = []
+_azure_monitor_configured: bool = False
 
 logger = logging.getLogger("telemetry")
 
@@ -31,17 +32,29 @@ def setup_azure_monitor():
         
         if not connection_string and not instrumentation_key:
             logger.warning("⚠️ No Application Insights connection string or instrumentation key found")
+            logger.info("💡 Expected environment variables: APPLICATIONINSIGHTS_CONNECTION_STRING or APPINSIGHTS_INSTRUMENTATIONKEY")
             return False
         
+        # Log which configuration we're using (for debugging)
+        if connection_string:
+            logger.info(f"✅ Using APPLICATIONINSIGHTS_CONNECTION_STRING: {connection_string[:50]}...")
+        elif instrumentation_key:
+            logger.info(f"✅ Using APPINSIGHTS_INSTRUMENTATIONKEY: {instrumentation_key[:10]}...")
+        
         # Configure Azure Monitor with enhanced settings for AI Foundry
-        configure_azure_monitor(
-            logger_name="maif_voice_assistant",
-            connection_string=connection_string,
-            # Enable additional features
-            enable_live_metrics=True,
-            # Sample rate for performance (1.0 = 100% sampling)
-            sampling_rate=1.0
-        )
+        try:
+            configure_azure_monitor(
+                logger_name="insurance_voice_assistant",
+                connection_string=connection_string if connection_string else None,
+                # Enable additional features for AI Foundry
+                enable_live_metrics=True,
+                # Sample rate for performance (1.0 = 100% sampling)
+                sampling_rate=1.0
+            )
+            logger.info("✅ Azure Monitor configured successfully")
+        except Exception as config_error:
+            logger.error(f"❌ Azure Monitor configuration failed: {config_error}")
+            return False
         
         # Try to instrument HTTP libraries for API calls tracing
         try:
@@ -67,18 +80,43 @@ def setup_azure_monitor():
             from opentelemetry.sdk.resources import Resource
             from opentelemetry import trace
             
-            resource = Resource.create({
+            # Get AI Foundry project information from environment
+            ai_foundry_project = os.environ.get("AZURE_AI_FOUNDRY_PROJECT_NAME", "maif-insurance-assistant")
+            ai_foundry_hub = os.environ.get("AZURE_AI_FOUNDRY_HUB_NAME", "")
+            deployment_env = os.environ.get("RUNNING_IN_PRODUCTION", "false")
+            
+            resource_attributes = {
                 "service.name": "maif-voice-assistant",
                 "service.version": "1.0.0",
-                "ai.foundry.project": "maif-insurance-assistant",
-                "deployment.environment": os.environ.get("ENVIRONMENT", "development"),
-                "ai.system": "azure_openai_realtime"
-            })
-            logger.info("✅ AI Foundry resource attributes set")
+                "service.namespace": "insurance",
+                "deployment.environment": "production" if deployment_env.lower() == "true" else "development",
+                "ai.system": "azure_openai_realtime",
+                "ai.foundry.enabled": "true"
+            }
+            
+            # Add AI Foundry specific attributes if available
+            if ai_foundry_project:
+                resource_attributes["ai.foundry.project"] = ai_foundry_project
+                resource_attributes["ai.foundry.project.name"] = ai_foundry_project
+            
+            if ai_foundry_hub:
+                resource_attributes["ai.foundry.hub"] = ai_foundry_hub
+                resource_attributes["ai.foundry.hub.name"] = ai_foundry_hub
+            
+            # Add Azure resource information
+            resource_group = os.environ.get("AZURE_RESOURCE_GROUP", "")
+            if resource_group:
+                resource_attributes["azure.resource_group"] = resource_group
+            
+            resource = Resource.create(resource_attributes)
+            logger.info(f"✅ AI Foundry resource attributes set: {ai_foundry_project}")
+            
         except Exception as e:
             logger.warning(f"⚠️ Resource attributes setup failed: {e}")
         
         logger.info("✅ Azure Monitor OpenTelemetry configured for AI Foundry")
+        global _azure_monitor_configured
+        _azure_monitor_configured = True
         return True
         
     except ImportError as e:
@@ -86,7 +124,8 @@ def setup_azure_monitor():
         logger.info("💡 Install with: pip install azure-monitor-opentelemetry")
         return False
     except Exception as e:
-        logger.warning(f"⚠️ Failed to setup Azure Monitor: {e}")
+        logger.error(f"❌ Failed to setup Azure Monitor: {e}")
+        logger.exception("Full error details:")
         return False
 
 def get_tracer():
@@ -311,6 +350,78 @@ def get_telemetry_data() -> Dict[str, Any]:
             "avg_model_latency": sum(call.get("latency", 0) for call in _model_calls) / len(_model_calls) if _model_calls else 0
         }
     }
+
+def verify_telemetry_setup() -> Dict[str, Any]:
+    """
+    Verify telemetry configuration and return diagnostic information.
+    This function helps debug telemetry issues.
+    """
+    diagnostics = {
+        "azure_monitor_configured": _azure_monitor_configured,
+        "connection_string_found": False,
+        "instrumentation_key_found": False,
+        "environment_variables": {},
+        "ai_foundry_config": {},
+        "errors": []
+    }
+    
+    try:
+        # Check environment variables
+        connection_string = os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING")
+        instrumentation_key = os.environ.get("APPINSIGHTS_INSTRUMENTATIONKEY")
+        
+        diagnostics["connection_string_found"] = bool(connection_string)
+        diagnostics["instrumentation_key_found"] = bool(instrumentation_key)
+        
+        if connection_string:
+            # Only show first and last few characters for security
+            masked_conn = f"{connection_string[:20]}...{connection_string[-10:]}" if len(connection_string) > 30 else connection_string
+            diagnostics["environment_variables"]["APPLICATIONINSIGHTS_CONNECTION_STRING"] = masked_conn
+        
+        if instrumentation_key:
+            masked_key = f"{instrumentation_key[:8]}...{instrumentation_key[-4:]}" if len(instrumentation_key) > 12 else instrumentation_key
+            diagnostics["environment_variables"]["APPINSIGHTS_INSTRUMENTATIONKEY"] = masked_key
+        
+        # Check AI Foundry configuration
+        ai_foundry_vars = [
+            "AZURE_AI_FOUNDRY_PROJECT_NAME",
+            "AZURE_AI_FOUNDRY_HUB_NAME", 
+            "AZURE_RESOURCE_GROUP",
+            "RUNNING_IN_PRODUCTION"
+        ]
+        
+        for var in ai_foundry_vars:
+            value = os.environ.get(var)
+            if value:
+                diagnostics["ai_foundry_config"][var] = value
+        
+        # Try to import Azure Monitor
+        try:
+            from azure.monitor.opentelemetry import configure_azure_monitor
+            diagnostics["azure_monitor_available"] = True
+        except ImportError as e:
+            diagnostics["azure_monitor_available"] = False
+            diagnostics["errors"].append(f"Azure Monitor not available: {e}")
+        
+        # Check if telemetry is working
+        if connection_string or instrumentation_key:
+            try:
+                # Try to create a test trace
+                tracer = get_tracer()
+                with tracer.start_as_current_span("telemetry_test") as span:
+                    span.set_attribute("test.status", "success")
+                    span.set_attribute("test.timestamp", time.time())
+                    diagnostics["test_trace_created"] = True
+            except Exception as e:
+                diagnostics["test_trace_created"] = False
+                diagnostics["errors"].append(f"Failed to create test trace: {e}")
+        
+        logger.info(f"🔍 Telemetry diagnostics completed: {len(diagnostics['errors'])} errors found")
+        
+    except Exception as e:
+        diagnostics["errors"].append(f"Diagnostic check failed: {e}")
+    
+    return diagnostics
 
 # Deprecated: Keep for backward compatibility
 class TelemetryCollector:

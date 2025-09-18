@@ -109,7 +109,7 @@ export function useChatWithAudio({
 
             const assistantMessage: ChatMessage = {
                 role: 'assistant',
-                content: data.message || 'No response received',
+                content: data.message || (data.audio ? (data.audio_transcript || 'Réponse audio générée') : 'No response received'),
                 timestamp: new Date(),
                 audio: data.audio,
                 audioFormat: data.audio_format || 'mp3',

@@ -53,9 +53,10 @@ async def create_app():
             if azure_monitor_configured:
                 logger.info("✅ Azure Monitor OpenTelemetry integration enabled")
             else:
-                logger.info("⚠️ Azure Monitor not configured - telemetry will use local storage only")
+                logger.warning("⚠️ Azure Monitor not configured - telemetry will use local storage only")
         except Exception as e:
             logger.warning(f"⚠️ Failed to setup Azure Monitor: {e}")
+            logger.exception("Full telemetry setup error:")
 
     llm_key = os.environ.get("AZURE_OPENAI_API_KEY")
     search_key = os.environ.get("AZURE_SEARCH_API_KEY")
@@ -151,7 +152,72 @@ REMEMBER: NEVER answer insurance questions without using the 'search' tool first
         except Exception as e:
             return web.json_response({"error": f"Telemetry error: {str(e)}"}, status=503)
     
+    # Add telemetry diagnostics endpoint
+    async def telemetry_diagnostics_handler(request):
+        try:
+            from telemetry import verify_telemetry_setup
+            diagnostics = verify_telemetry_setup()
+            return web.json_response(diagnostics)
+        except Exception as e:
+            return web.json_response({"error": f"Diagnostics error: {str(e)}", "working": False}, status=500)
+    
+    # Add telemetry test endpoint to force trace creation
+    async def telemetry_test_handler(request):
+        try:
+            from telemetry import trace_tool_call, trace_model_call, get_tracer
+            import time
+            
+            # Create test traces
+            logger.info("Creating test traces for debugging...")
+            
+            # Test tool call
+            trace_tool_call(
+                "test_tool", 
+                {"test_param": "test_value", "timestamp": time.time()}, 
+                duration=0.123,
+                response={"status": "success", "message": "Test trace from deployed app"},
+                response_size=100
+            )
+            
+            # Test model call
+            trace_model_call(
+                "gpt-4o",
+                "test_completion",
+                tokens_used=50,
+                latency=0.456,
+                cost=0.001,
+                prompt="Test prompt from deployed app",
+                response="Test response from deployed app"
+            )
+            
+            # Test manual span creation
+            tracer = get_tracer()
+            with tracer.start_as_current_span("manual_test_span") as span:
+                span.set_attributes({
+                    "test.type": "manual_verification",
+                    "test.environment": "azure_container_app",
+                    "test.timestamp": time.time(),
+                    "app.deployment": "azure"
+                })
+                logger.info("Manual test span created")
+            
+            return web.json_response({
+                "success": True,
+                "message": "Test traces created successfully",
+                "traces_sent": 3,
+                "timestamp": time.time()
+            })
+        except Exception as e:
+            logger.exception("Error creating test traces")
+            return web.json_response({
+                "success": False,
+                "error": str(e),
+                "timestamp": time.time()
+            }, status=500)
+    
     app.router.add_get('/api/telemetry', telemetry_handler)
+    app.router.add_get('/api/telemetry/diagnostics', telemetry_diagnostics_handler)
+    app.router.add_post('/api/telemetry/test', telemetry_test_handler)
     
     # Add GPT-4o Audio chat endpoint
     if chat_handler:
@@ -370,7 +436,6 @@ REMEMBER: NEVER answer insurance questions without using the 'search' tool first
                 status=500
             )
     
-    app.router.add_get('/api/telemetry', telemetry_handler)
     app.router.add_get('/api/conversations', conversations_list_handler)
     app.router.add_get('/api/conversations/{session_id}', conversation_detail_handler)
     app.router.add_post('/api/user-transcript', user_transcript_handler)

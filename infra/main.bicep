@@ -301,6 +301,12 @@ module acaBackend 'core/host/container-app-upsert.bicep' = {
       AZURE_API_ENDPOINT: acaApi.outputs.uri
       // OpenTelemetry and Application Insights
       APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.outputs.connectionString
+      // Alternative Application Insights configuration (fallback)
+      APPINSIGHTS_INSTRUMENTATIONKEY: applicationInsights.outputs.instrumentationKey
+      // AI Foundry Configuration
+      AZURE_AI_FOUNDRY_HUB_NAME: ''  // Will be populated if AI Foundry is enabled
+      AZURE_AI_FOUNDRY_PROJECT_NAME: ''  // Will be populated if AI Foundry is enabled
+      AZURE_RESOURCE_GROUP: resourceGroup.name
       // CORS support, for frontends on other hosts
       RUNNING_IN_PRODUCTION: 'true'
       // For using managed identity to access Azure resources. See https://github.com/microsoft/azure-container-apps/issues/442
@@ -528,6 +534,8 @@ output AZURE_STORAGE_CONTAINER string = storageContainerName
 output AZURE_STORAGE_RESOURCE_GROUP string = storageResourceGroup.name
 
 output APPLICATIONINSIGHTS_CONNECTION_STRING string = applicationInsights.outputs.connectionString
+output APPLICATIONINSIGHTS_INSTRUMENTATION_KEY string = applicationInsights.outputs.instrumentationKey
+output APPLICATION_INSIGHTS_NAME string = applicationInsights.outputs.name
 
 output BACKEND_URI string = acaBackend.?outputs.?uri != null ? acaBackend.outputs.uri : ''
 output API_URI string = acaApi.?outputs.?uri != null ? acaApi.outputs.uri : ''

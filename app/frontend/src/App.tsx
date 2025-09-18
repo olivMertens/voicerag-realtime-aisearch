@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mic, MicOff, Shield, Send, MessageSquare, RotateCcw } from "lucide-react";
+import { Mic, MicOff, Shield, Send, MessageSquare, RotateCcw, Plus, Volume2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,9 @@ import { EnhancedGroundingDisplay } from "@/components/ui/enhanced-grounding-dis
 import { CallHistoryPopup } from "@/components/ui/call-history-popup";
 import { AudioPlayer } from "@/components/ui/audio-player";
 import { CompactVoiceSelector } from "@/components/ui/compact-voice-selector";
+import FloatingThemeButton from "@/components/ui/floating-theme-button";
 
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import useRealTime from "@/hooks/useRealtime";
 import useAudioRecorder from "@/hooks/useAudioRecorder";
 import useAudioPlayer from "@/hooks/useAudioPlayer";
@@ -83,6 +85,14 @@ const detectNameMentions = (text: string): { hasNameMention: boolean; detectedNa
 };
 
 function App() {
+    return (
+        <ThemeProvider>
+            <AppContent />
+        </ThemeProvider>
+    );
+}
+
+function AppContent() {
     const [isRecording, setIsRecording] = useState(false);
     const [groundingFiles, setGroundingFiles] = useState<GroundingFile[]>([]);
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
@@ -108,6 +118,7 @@ function App() {
         lastAudioData,
         lastAudioFormat,
         lastVoice,
+        lastAudioTranscript,
         clearMessages: clearChatMessages,
         messages: chatMessages
     } = useChatWithAudio();
@@ -322,14 +333,47 @@ function App() {
                     <Shield className="h-16 w-16 text-white drop-shadow-lg" />
                 </div>
                 
-                {/* Refresh Button */}
-                <div className="absolute top-6 right-6 pointer-events-auto">
+                {/* Action Buttons */}
+                <div className="absolute top-6 right-6 pointer-events-auto z-50 flex gap-3">
+                    {/* New Session Button */}
+                    <Button
+                        onClick={() => {
+                            // Clear all conversations and start fresh
+                            clearChatMessages();
+                            setCompletedUserMessages([]);
+                            setCompletedAssistantMessages([]);
+                            setCurrentUserTranscript('');
+                            setCurrentAssistantTranscript('');
+                            setTextMessage('');
+                            setGroundingFiles([]);
+                            setSelectedFile(null);
+                            setRagSources([]);
+                            setEnhancedGrounding(null);
+                            setCallHistoryMetadata(null);
+                            setIsCallHistoryVisible(false);
+                            
+                            // Stop recording if active
+                            if (isRecording) {
+                                onToggleListening();
+                            }
+                            
+                            console.log('🆕 New session started');
+                        }}
+                        className="glass-card hover:bg-white/20 text-white p-4 rounded-2xl transition-all duration-200 floating-element group cursor-pointer"
+                        title="Nouvelle session"
+                        style={{ pointerEvents: 'auto' }}
+                    >
+                        <Plus className="h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
+                    </Button>
+                    
+                    {/* Restart Conversation Button */}
                     <Button
                         onClick={handleRestartConversation}
-                        className="glass-card hover:bg-white/20 text-white p-4 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:rotate-180 floating-element group"
+                        className="glass-card hover:bg-white/20 text-white p-4 rounded-2xl transition-all duration-200 floating-element group cursor-pointer"
                         title="Redémarrer la conversation"
+                        style={{ pointerEvents: 'auto' }}
                     >
-                        <RotateCcw className="h-6 w-6 transition-transform duration-300 group-hover:rotate-180" />
+                        <RotateCcw className="h-6 w-6 transition-transform duration-200 group-hover:rotate-180" />
                     </Button>
                 </div>
             </header>
@@ -485,10 +529,21 @@ function App() {
                                                     : 'bg-white/20 text-white mr-8'
                                             }`}
                                         >
-                                            <div className="text-sm opacity-70 mb-1">
-                                                {message.role === 'user' ? 'Vous' : 'Assistant'}
+                                            <div className="text-sm opacity-70 mb-1 flex items-center gap-2">
+                                                <span>{message.role === 'user' ? 'Vous' : 'Assistant'}</span>
+                                                {message.role === 'assistant' && message.audio && (
+                                                    <div className="flex items-center gap-1 text-xs bg-blue-500/30 px-2 py-1 rounded-full">
+                                                        <Volume2 className="w-3 h-3" />
+                                                        <span>Audio</span>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div>{message.content}</div>
+                                            <div className="whitespace-pre-wrap">{message.content}</div>
+                                            {message.role === 'assistant' && message.audioTranscript && (
+                                                <div className="text-xs text-white/60 mt-2 italic border-l-2 border-white/30 pl-2">
+                                                    Transcription audio: "{message.audioTranscript}"
+                                                </div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -500,6 +555,7 @@ function App() {
                                     audioData={lastAudioData || undefined}
                                     audioFormat={lastAudioFormat || 'mp3'}
                                     voice={lastVoice || selectedTextVoice}
+                                    transcript={lastAudioTranscript || undefined}
                                     isLoading={isGeneratingAudio && !lastAudioData}
                                 />
                             )}
@@ -584,6 +640,9 @@ function App() {
                     title="Historique des appels client"
                 />
             )}
+
+            {/* Floating Theme Selector */}
+            <FloatingThemeButton />
         </div>
     );
 }
