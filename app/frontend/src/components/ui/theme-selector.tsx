@@ -5,10 +5,15 @@ import { useTheme, Theme } from '../../contexts/ThemeContext';
 const ThemeSelector: React.FC = () => {
     const { theme, setTheme } = useTheme();
 
+    const handleThemeChange = (newTheme: Theme) => {
+        console.log(`🎨 Theme change clicked: ${theme} -> ${newTheme}`);
+        setTheme(newTheme);
+    };
+
     const themes: { key: Theme; name: string; preview: string; description: string }[] = [
         {
             key: 'glass',
-            name: 'Verre',
+            name: 'Glass',
             preview: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%)',
             description: 'Effet glassmorphisme moderne'
         },
@@ -37,12 +42,13 @@ const ThemeSelector: React.FC = () => {
                 {themes.map((themeOption) => (
                     <button
                         key={themeOption.key}
-                        onClick={() => setTheme(themeOption.key)}
-                        className={`w-full p-3 rounded-xl transition-all duration-200 border-2 ${
+                        onClick={() => handleThemeChange(themeOption.key)}
+                        className={`w-full p-3 rounded-xl transition-all duration-200 border-2 cursor-pointer floating-button ${
                             theme === themeOption.key
                                 ? 'border-blue-400 bg-white/10'
                                 : 'border-white/10 hover:border-white/20 hover:bg-white/5'
                         }`}
+                        style={{ pointerEvents: 'auto' }}
                     >
                         <div className="flex items-center gap-3">
                             {/* Theme preview circle */}

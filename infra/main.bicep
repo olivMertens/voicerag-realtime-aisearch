@@ -78,21 +78,22 @@ param openAiRealtimeDeployment string = ''
 @minLength(1)
 @description('Choice of voice for the OpenAI deployment')
 @allowed([
-  'echo'
   'alloy'
-  'shimmer'
-  'fable'
-  'nova'
   'ash'
+  'ballad'
+  'cedar'
   'coral'
+  'echo'
+  'marin'
   'sage'
+  'shimmer'
+  'verse'
 ])
 @metadata({
   azd: {
     type: 'openAiRealtimeVoiceChoice'
   }
 })
-
 param openAiRealtimeVoiceChoice string
 
 @description('Location for the OpenAI resource group')

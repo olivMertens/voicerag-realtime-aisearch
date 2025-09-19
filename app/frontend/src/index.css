@@ -292,6 +292,17 @@ body {
     color: #94a3b8 !important;
 }
 
+/* Footer styling for white theme */
+.theme-white footer .glass-card {
+    background: rgba(15, 23, 42, 0.9);
+    color: #f1f5f9;
+    border: 1px solid rgba(51, 65, 85, 0.6);
+}
+
+.theme-white footer .text-white\/90 {
+    color: #f1f5f9 !important;
+}
+
 /* Black Theme */
 .theme-black {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);

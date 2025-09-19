@@ -87,8 +87,11 @@ class ChatHandler:
             # Build messages for the API
             messages = []
             
-            # Add system message
-            system_message = self._get_system_message()
+            # Add system message - use audio-specific message if generating audio
+            if generate_audio:
+                system_message = self._get_audio_system_message()
+            else:
+                system_message = self._get_system_message()
             if system_message:
                 messages.append({"role": "system", "content": system_message})
             
@@ -206,9 +209,13 @@ class ChatHandler:
                     response_data["audio"] = assistant_message.audio.data  # Base64 encoded MP3
                     response_data["audio_format"] = "mp3"
                     
-                    # Add transcript if available
+                    # Clean audio transcript for better listening experience
                     if hasattr(assistant_message.audio, 'transcript') and assistant_message.audio.transcript:
-                        response_data["audio_transcript"] = assistant_message.audio.transcript
+                        cleaned_transcript = self._clean_response_for_audio(assistant_message.audio.transcript)
+                        response_data["audio_transcript"] = cleaned_transcript
+                    else:
+                        # Fallback: clean the text content for audio
+                        response_data["audio_transcript"] = self._clean_response_for_audio(assistant_message.content)
                     
                     # Add audio ID for potential conversation continuity
                     if hasattr(assistant_message.audio, 'id') and assistant_message.audio.id:
@@ -360,6 +367,124 @@ GROUNDING BEST PRACTICES:
 - The UI will display these sources to help users verify information
 
 REMEMBER: NEVER answer insurance questions without using the 'search' tool first. This is MANDATORY."""
+
+    def _get_audio_system_message(self) -> str:
+        """Get the system message specifically for GPT-Audio generation"""
+        return """You are a professional and caring insurance advisor for MAIF and MAAF insurance companies.
+
+CRITICAL MANDATORY RULE: You MUST ALWAYS use the 'search' tool FIRST before answering ANY insurance-related question. NO exceptions.
+
+WORKFLOW FOR EVERY RESPONSE:
+1. ALWAYS call 'search' tool first with relevant keywords from the user's question
+2. Wait for search results from the knowledge base
+3. Use 'report_grounding' tool to cite sources with confidence level and summary
+4. Then provide your response based ONLY on the retrieved information
+
+AVAILABLE TOOLS - USE THEM:
+- 'search': Search the knowledge base (MANDATORY for all insurance questions)
+- 'report_grounding': Cite information sources (MANDATORY after search) - includes confidence level and summary for UI display
+- 'get_policies': Check insurance policies
+- 'get_claims': Check declared claims
+- 'get_agencies': Find local agencies
+- 'get_contact_info': Get MAIF/MAAF contact information
+
+BEHAVIOR GUIDELINES:
+- Respond in the same language as the user (French or English)
+- Professional, reassuring, and empathetic tone like a real insurance advisor
+- Always use formal address ("vous" in French, formal tone in English)
+- Keep responses concise and clear for text and audio consumption
+- Never mention file names, sources, or technical keys in responses
+- Cover all MAIF/MAAF domains: auto, home, motorcycle, life insurance, retirement, health
+- For claims declaration, direct to official channels (mobile apps, phone numbers)
+- Be precise about coverage, deductibles, and compensation terms
+- If information is not in knowledge base, say so clearly and refer to human advisor
+
+CRITICAL FOR AUDIO RESPONSES:
+- NEVER mention that you are "going to search" or "consulting information"
+- NEVER say phrases like "Je vais consulter", "Un instant", "Laissez-moi vérifier", "selon mes sources"
+- Respond DIRECTLY as if you already know the information
+- Use the search tools silently in the background
+- Give immediate, confident answers based on your knowledge
+- Start your response with the actual answer, not procedural statements
+
+RESPONSE STYLE EXAMPLES:
+User: "Que couvre l'assurance auto MAIF?"
+WRONG: "Je vais consulter les informations disponibles sur la couverture auto MAIF..."
+WRONG: "Selon mes sources, l'assurance auto MAIF..."
+CORRECT: "L'assurance auto MAIF couvre les dommages collision, la responsabilité civile, le vol..."
+
+EXAMPLE MANDATORY WORKFLOW:
+User: "What does MAIF auto insurance cover?"
+1. I MUST call search("MAIF auto insurance coverage benefits guarantees")
+2. I MUST call report_grounding with:
+   - sources: [list of chunk IDs actually used]
+   - confidence_level: "high" (if sources are comprehensive and relevant)
+   - summary: "Coverage details for MAIF auto insurance from official documentation"
+3. Then provide DIRECT answer based on retrieved information (no mention of search process)
+
+GROUNDING BEST PRACTICES:
+- Use confidence_level: "high" for official policy documents, "medium" for general info, "low" for partial matches
+- Provide helpful summary describing what information was extracted
+- Only include sources that were actually used in your response
+- The UI will display these sources to help users verify information
+
+REMEMBER: NEVER answer insurance questions without using the 'search' tool first. This is MANDATORY."""
+
+    def _clean_response_for_audio(self, content: str) -> str:
+        """Clean the response to remove grounding information for audio generation"""
+        if not content:
+            return content
+        
+        # Split response into sentences
+        sentences = []
+        current_sentence = ""
+        
+        for char in content:
+            current_sentence += char
+            if char in '.!?':
+                # End of sentence - check if it should be kept
+                sentence = current_sentence.strip()
+                if self._should_keep_sentence_for_audio(sentence):
+                    sentences.append(sentence)
+                current_sentence = ""
+        
+        # Add any remaining content
+        if current_sentence.strip():
+            sentence = current_sentence.strip()
+            if self._should_keep_sentence_for_audio(sentence):
+                sentences.append(sentence)
+        
+        # Join sentences and clean up
+        cleaned_content = " ".join(sentences)
+        cleaned_content = " ".join(cleaned_content.split())  # Normalize whitespace
+        
+        logger.debug(f"🎵 Audio content cleaned: {len(content)} -> {len(cleaned_content)} chars")
+        
+        return cleaned_content
+    
+    def _should_keep_sentence_for_audio(self, sentence: str) -> bool:
+        """Determine if a sentence should be kept in audio output"""
+        if not sentence or len(sentence.strip()) < 3:
+            return False
+        
+        sentence_lower = sentence.lower()
+        
+        # Remove sentences that contain brackets, colons, or technical formatting
+        technical_indicators = ["[", "]", ":", "chunk_", "id:", "level:", "summary:", "grounding information"]
+        for indicator in technical_indicators:
+            if indicator in sentence_lower:
+                return False
+        
+        # Remove sentences that are purely metadata or procedural
+        if sentence_lower.strip().startswith(("sources", "source", "confidence")):
+            return False
+        
+        # Remove very short sentences that are likely metadata
+        if len(sentence.strip()) < 10:
+            return False
+        
+        # Keep all other sentences - this will preserve the natural flow
+        return True
 
 # Global chat handler instance
 chat_handler = ChatHandler()

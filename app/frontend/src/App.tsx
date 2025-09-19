@@ -14,7 +14,6 @@ import { EnhancedGroundingDisplay } from "@/components/ui/enhanced-grounding-dis
 import { CallHistoryPopup } from "@/components/ui/call-history-popup";
 import { AudioPlayer } from "@/components/ui/audio-player";
 import { CompactVoiceSelector } from "@/components/ui/compact-voice-selector";
-import FloatingThemeButton from "@/components/ui/floating-theme-button";
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import useRealTime from "@/hooks/useRealtime";
@@ -333,8 +332,8 @@ function AppContent() {
                     <Shield className="h-16 w-16 text-white drop-shadow-lg" />
                 </div>
                 
-                {/* Action Buttons */}
-                <div className="absolute top-6 right-6 pointer-events-auto z-50 flex gap-3">
+                {/* Action Buttons - moved to bottom left */}
+                <div className="absolute bottom-6 left-6 pointer-events-auto z-50 flex gap-3">
                     {/* New Session Button */}
                     <Button
                         onClick={() => {
@@ -640,9 +639,6 @@ function AppContent() {
                     title="Historique des appels client"
                 />
             )}
-
-            {/* Floating Theme Selector */}
-            <FloatingThemeButton />
         </div>
     );
 }
