@@ -139,6 +139,42 @@ class ChatHandler:
             # Process response
             assistant_message = response.choices[0].message
             
+            # Pre-filter and regenerate audio if needed (for direct responses without tools)
+            if generate_audio and assistant_message.content and not assistant_message.tool_calls:
+                cleaned_content_for_audio = self._clean_response_for_audio(assistant_message.content)
+                
+                # If content was significantly cleaned, regenerate audio with clean content
+                if len(cleaned_content_for_audio) < len(assistant_message.content) * 0.8:
+                    logger.info("🧹 Direct response content was significantly cleaned, regenerating audio")
+                    
+                    # Create new messages with cleaned content for audio generation
+                    clean_messages = messages[:-1] + [{
+                        "role": "user", 
+                        "content": user_message
+                    }, {
+                        "role": "assistant",
+                        "content": cleaned_content_for_audio
+                    }]
+                    
+                    clean_audio_params = {
+                        "model": self.audio_deployment,
+                        "messages": clean_messages,
+                        "temperature": 0.0,
+                        "max_tokens": len(cleaned_content_for_audio.split()) + 100,
+                        "stream": False,
+                        "modalities": ["text", "audio"],
+                        "audio": {
+                            "voice": self.voice_choice,
+                            "format": "mp3"
+                        }
+                    }
+                    
+                    clean_audio_response = await self.client.chat.completions.create(**clean_audio_params)
+                    
+                    # Use original text content but clean audio
+                    if hasattr(clean_audio_response.choices[0].message, 'audio') and clean_audio_response.choices[0].message.audio:
+                        assistant_message.audio = clean_audio_response.choices[0].message.audio
+            
             # Handle tool calls if any
             if assistant_message.tool_calls:
                 # Execute tool calls
@@ -184,6 +220,40 @@ class ChatHandler:
                 final_response = await self.client.chat.completions.create(**final_api_params)
                 
                 assistant_message = final_response.choices[0].message
+                
+                # Pre-filter content for audio generation if audio was generated
+                if generate_audio and assistant_message.content:
+                    # Clean the text content before it's used for audio generation
+                    cleaned_content_for_audio = self._clean_response_for_audio(assistant_message.content)
+                    
+                    # If the content was significantly cleaned, regenerate audio with clean content
+                    if len(cleaned_content_for_audio) < len(assistant_message.content) * 0.8:
+                        logger.info("🧹 Content was significantly cleaned, regenerating audio with filtered text")
+                        
+                        # Create a new message with cleaned content for audio generation
+                        clean_messages = messages[:-1] + [{
+                            "role": "assistant", 
+                            "content": cleaned_content_for_audio
+                        }]
+                        
+                        clean_audio_params = {
+                            "model": self.audio_deployment,
+                            "messages": clean_messages,
+                            "temperature": 0.0,  # Lower temperature for consistent audio
+                            "max_tokens": len(cleaned_content_for_audio.split()) + 100,
+                            "stream": False,
+                            "modalities": ["text", "audio"],
+                            "audio": {
+                                "voice": self.voice_choice,
+                                "format": "mp3"
+                            }
+                        }
+                        
+                        clean_audio_response = await self.client.chat.completions.create(**clean_audio_params)
+                        
+                        # Use the original text content but the clean audio
+                        if hasattr(clean_audio_response.choices[0].message, 'audio') and clean_audio_response.choices[0].message.audio:
+                            assistant_message.audio = clean_audio_response.choices[0].message.audio
             
             # Trace the interaction
             telemetry.trace_model_call(
@@ -400,12 +470,29 @@ BEHAVIOR GUIDELINES:
 - If information is not in knowledge base, say so clearly and refer to human advisor
 
 CRITICAL FOR AUDIO RESPONSES:
-- NEVER mention that you are "going to search" or "consulting information"
-- NEVER say phrases like "Je vais consulter", "Un instant", "Laissez-moi vérifier", "selon mes sources"
+- NEVER mention that you are "going to search" or "consulting information"  
+- NEVER say phrases like "Je vais consulter", "Je vais vérifier", "Un instant", "Laissez-moi vérifier", "selon mes sources"
+- NEVER use procedural language like "vérifier les informations disponibles"
+- DO NOT announce your search process in ANY way
 - Respond DIRECTLY as if you already know the information
 - Use the search tools silently in the background
 - Give immediate, confident answers based on your knowledge
 - Start your response with the actual answer, not procedural statements
+- Act like an expert who already has the knowledge, not someone looking it up
+
+FORBIDDEN PHRASES FOR AUDIO:
+- "Je vais vérifier..."
+- "Je vais consulter..."
+- "Un instant"
+- "Laissez-moi..."
+- "Selon mes sources..."
+- "D'après les informations..."
+- "Les informations disponibles..."
+
+CORRECT AUDIO RESPONSE PATTERN:
+- Start IMMEDIATELY with the factual answer
+- Speak with confidence as an insurance expert
+- No delays, no procedural announcements
 
 RESPONSE STYLE EXAMPLES:
 User: "Que couvre l'assurance auto MAIF?"
@@ -467,7 +554,7 @@ REMEMBER: NEVER answer insurance questions without using the 'search' tool first
         if not sentence or len(sentence.strip()) < 3:
             return False
         
-        sentence_lower = sentence.lower()
+        sentence_lower = sentence.lower().strip()
         
         # Remove sentences that contain brackets, colons, or technical formatting
         technical_indicators = ["[", "]", ":", "chunk_", "id:", "level:", "summary:", "grounding information"]
@@ -476,7 +563,7 @@ REMEMBER: NEVER answer insurance questions without using the 'search' tool first
                 return False
         
         # Remove sentences that are purely metadata or procedural
-        if sentence_lower.strip().startswith(("sources", "source", "confidence")):
+        if sentence_lower.startswith(("sources", "source", "confidence")):
             return False
         
         # Remove very short sentences that are likely metadata
