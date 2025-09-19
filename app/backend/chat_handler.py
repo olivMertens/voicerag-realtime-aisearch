@@ -301,6 +301,38 @@ class ChatHandler:
             
         except Exception as e:
             logger.error(f"Chat handler error: {e}")
+            
+            # Check if this is a content safety policy violation
+            error_str = str(e)
+            if "content_filter" in error_str or "ResponsibleAIPolicyViolation" in error_str:
+                # Parse the content filter details if available
+                content_filter_info = None
+                try:
+                    if "content_filter_result" in error_str:
+                        # Try to extract content filter details
+                        import re
+                        filter_match = re.search(r"'content_filter_result': ({.*?})", error_str)
+                        if filter_match:
+                            content_filter_info = filter_match.group(1)
+                except Exception as parse_error:
+                    logger.warning(f"Could not parse content filter details: {parse_error}")
+                
+                return web.json_response(
+                    {
+                        "error": "content_safety_violation",
+                        "error_type": "content_filter",
+                        "message": "Votre demande a été filtrée par la politique de sécurité du contenu d'Azure OpenAI. Veuillez modifier votre question et réessayer.",
+                        "details": {
+                            "reason": "La question contient du contenu qui viole les politiques de sécurité",
+                            "action": "Veuillez reformuler votre question de manière appropriée",
+                            "documentation": "https://go.microsoft.com/fwlink/?linkid=2198766"
+                        },
+                        "content_filter_result": content_filter_info
+                    }, 
+                    status=400
+                )
+            
+            # For other errors, return generic error
             return web.json_response(
                 {"error": f"Chat processing failed: {str(e)}"}, 
                 status=500
@@ -469,51 +501,35 @@ BEHAVIOR GUIDELINES:
 - Be precise about coverage, deductibles, and compensation terms
 - If information is not in knowledge base, say so clearly and refer to human advisor
 
-CRITICAL FOR AUDIO RESPONSES:
-- NEVER mention that you are "going to search" or "consulting information"  
-- NEVER say phrases like "Je vais consulter", "Je vais vérifier", "Un instant", "Laissez-moi vérifier", "selon mes sources"
-- NEVER use procedural language like "vérifier les informations disponibles"
-- DO NOT announce your search process in ANY way
-- Respond DIRECTLY as if you already know the information
-- Use the search tools silently in the background
-- Give immediate, confident answers based on your knowledge
-- Start your response with the actual answer, not procedural statements
-- Act like an expert who already has the knowledge, not someone looking it up
+ABSOLUTE IMPERATIVE FOR AUDIO RESPONSES - BE IMMEDIATELY SPECIFIC AND HELPFUL:
+- START WITH SPECIFIC INSURANCE INFORMATION RIGHT AWAY
+- NO procedural announcements whatsoever
+- NO phrases like "Je vais vous donner", "Je vais vous expliquer", "Je vais vous aider"
+- NO "Un instant", "Laissez-moi", "Permettez-moi", "D'abord"
+- ACT like you are an insurance expert with instant access to knowledge
+- GIVE concrete details about coverage, benefits, procedures immediately
+- BE proactive with specific helpful information
+- ANTICIPATE what the customer really needs to know
 
-FORBIDDEN PHRASES FOR AUDIO:
-- "Je vais vérifier..."
-- "Je vais consulter..."
-- "Un instant"
-- "Laissez-moi..."
-- "Selon mes sources..."
-- "D'après les informations..."
-- "Les informations disponibles..."
+TRANSFORM VAGUE RESPONSES INTO SPECIFIC ONES:
+WRONG: "Je vais vous donner des informations précises"
+CORRECT: "L'assurance habitation MAIF couvre les dégâts causés par les animaux domestiques des voisins via la garantie responsabilité civile, avec une franchise de 150€ et un plafond de remboursement de 100 000€"
 
-CORRECT AUDIO RESPONSE PATTERN:
-- Start IMMEDIATELY with the factual answer
-- Speak with confidence as an insurance expert
-- No delays, no procedural announcements
+WRONG: "Je vais vous expliquer les garanties"
+CORRECT: "Votre assurance auto MAAF inclut trois garanties principales : responsabilité civile obligatoire, dommages collision avec franchise de 200€, et vol/incendie avec remplacement à neuf pendant 2 ans"
 
-RESPONSE STYLE EXAMPLES:
-User: "Que couvre l'assurance auto MAIF?"
-WRONG: "Je vais consulter les informations disponibles sur la couverture auto MAIF..."
-WRONG: "Selon mes sources, l'assurance auto MAIF..."
-CORRECT: "L'assurance auto MAIF couvre les dommages collision, la responsabilité civile, le vol..."
+WRONG: "Je vais vérifier vos options"
+CORRECT: "Pour déclarer un sinistre MAIF, vous avez trois options : l'application mobile MAIF disponible 24h/24, le numéro d'urgence 05 49 73 73 73, ou votre espace client en ligne avec accusé de réception immédiat"
 
-EXAMPLE MANDATORY WORKFLOW:
-User: "What does MAIF auto insurance cover?"
-1. I MUST call search("MAIF auto insurance coverage benefits guarantees")
-2. I MUST call report_grounding with:
-   - sources: [list of chunk IDs actually used]
-   - confidence_level: "high" (if sources are comprehensive and relevant)
-   - summary: "Coverage details for MAIF auto insurance from official documentation"
-3. Then provide DIRECT answer based on retrieved information (no mention of search process)
+BE A KNOWLEDGEABLE INSURANCE CONSULTANT, NOT AN ASSISTANT:
+- Give specific coverage amounts, deductibles, procedures
+- Mention exact contact numbers, deadlines, requirements
+- Provide step-by-step instructions when relevant
+- Offer additional relevant information proactively
 
-GROUNDING BEST PRACTICES:
-- Use confidence_level: "high" for official policy documents, "medium" for general info, "low" for partial matches
-- Provide helpful summary describing what information was extracted
-- Only include sources that were actually used in your response
-- The UI will display these sources to help users verify information
+EXAMPLE PROACTIVE RESPONSES:
+User: "Mon chat du voisin a cassé ma fenêtre"
+YOU: "Les dégâts causés par l'animal domestique d'un voisin sont couverts par votre assurance habitation MAIF sous la garantie responsabilité civile. Le montant de remboursement peut atteindre 100 000€ avec une franchise de 150€. Pour déclarer ce sinistre, utilisez l'application MAIF ou appelez le 05 49 73 73 73 sous 5 jours ouvrés. Pensez à prendre des photos des dégâts et à demander une attestation d'assurance à votre voisin."
 
 REMEMBER: NEVER answer insurance questions without using the 'search' tool first. This is MANDATORY."""
 

@@ -14,6 +14,7 @@ import { EnhancedGroundingDisplay } from "@/components/ui/enhanced-grounding-dis
 import { CallHistoryPopup } from "@/components/ui/call-history-popup";
 import { AudioPlayer } from "@/components/ui/audio-player";
 import { CompactVoiceSelector } from "@/components/ui/compact-voice-selector";
+import ContentSafetyPopup from "@/components/ui/content-safety-popup";
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import useRealTime from "@/hooks/useRealtime";
@@ -156,6 +157,13 @@ function AppContent() {
     const [showTextChat, setShowTextChat] = useState(false);
     const [callHistoryMetadata, setCallHistoryMetadata] = useState<CallHistoryMetadata | null>(null);
     const [isCallHistoryVisible, setIsCallHistoryVisible] = useState(false);
+    const [isContentSafetyVisible, setIsContentSafetyVisible] = useState(false);
+    const [contentSafetyDetails, setContentSafetyDetails] = useState<{
+        message: string;
+        reason?: string;
+        action?: string;
+        documentation?: string;
+    } | null>(null);
 
     // Audio and voice settings hooks
     const { selectedTextVoice, selectedRealtimeVoice, updateTextVoice, updateRealtimeVoice } = useVoiceSettings();
@@ -168,7 +176,13 @@ function AppContent() {
         lastAudioTranscript,
         clearMessages: clearChatMessages,
         messages: chatMessages
-    } = useChatWithAudio();
+    } = useChatWithAudio({
+        onContentSafetyError: errorDetails => {
+            console.log("🚫 Content safety violation:", errorDetails);
+            setContentSafetyDetails(errorDetails);
+            setIsContentSafetyVisible(true);
+        }
+    });
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
         onWebSocketOpen: () => console.log("WebSocket connection opened"),
@@ -639,6 +653,13 @@ function AppContent() {
                     title="Historique des appels client"
                 />
             )}
+
+            {/* Content Safety Popup */}
+            <ContentSafetyPopup
+                isVisible={isContentSafetyVisible}
+                onClose={() => setIsContentSafetyVisible(false)}
+                errorDetails={contentSafetyDetails || undefined}
+            />
         </div>
     );
 }
