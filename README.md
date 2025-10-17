@@ -324,8 +324,38 @@ This script validates:
 
 ### Installation & Setup
 
-3. Install the required dependencies for both API and backend services:
+3. Create and activate a Python virtual environment:
 
+   **Option A - Using venv (Standard Python):**
+   ```shell
+   # Create virtual environment
+   python -m venv .venv
+   
+   # Activate virtual environment
+   # Windows:
+   .\.venv\Scripts\Activate.ps1
+   # Linux/Mac:
+   source .venv/bin/activate
+   ```
+
+   **Option B - Using uv (Faster, Recommended):**
+   ```shell
+   # Install uv if not already installed
+   pip install uv
+   
+   # Create and activate virtual environment
+   uv venv .venv
+   
+   # Activate virtual environment
+   # Windows:
+   .\.venv\Scripts\Activate.ps1
+   # Linux/Mac:
+   source .venv/bin/activate
+   ```
+
+4. Install the required dependencies for both API and backend services:
+
+   **Using pip:**
    ```shell
    # Install backend requirements
    cd app/backend
@@ -336,7 +366,14 @@ This script validates:
    pip install -r requirements.txt
    ```
 
-4. (Optional) If you need to re-initialize the Azure AI Search index with the insurance FAQ data:
+   **Using uv (Faster):**
+   ```shell
+   # Install backend and API requirements
+   uv pip install -r app/backend/requirements.txt
+   uv pip install -r app/api/requirements.txt
+   ```
+
+5. (Optional) If you need to re-initialize the Azure AI Search index with the insurance FAQ data:
 
    ```shell
    cd app/backend
@@ -345,7 +382,7 @@ This script validates:
 
 ### Running the Application
 
-5. Start the application using the provided scripts:
+6. Start the application using the provided scripts:
 
    **Windows (PowerShell):**
    ```pwsh
@@ -363,13 +400,13 @@ This script validates:
 
 ### Verification
 
-6. Verify the services are running:
+7. Verify the services are running:
    - **Backend Health**: [http://localhost:8000](http://localhost:8000)
    - **API Health**: [http://localhost:8765/health](http://localhost:8765/health)
 
    The API should return: `MAAF/MAIF Insurance Voice Assistant API`
 
-7. **Testing the Application**: 
+8. **Testing the Application**: 
    Navigate to [http://localhost:8000](http://localhost:8000) to see the hybrid insurance assistant interface.
 
    **Voice Chat Mode (Realtime API):**
