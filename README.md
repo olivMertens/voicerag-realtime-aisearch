@@ -281,41 +281,64 @@ This script validates:
 
 1. If you deployed with `azd up`, you should see a `app/backend/.env` file with the necessary environment variables.
 
-2. If you did *not* use `azd up`, you will need to create `app/backend/.env` file with the following environment variables:
+2. If you did *not* use `azd up`, create `.env` file in the project root with the following environment variables:
 
    ```shell
-   AZURE_OPENAI_ENDPOINT=https://<your instance name>.openai.azure.com
+   # Azure OpenAI Configuration for GPT Realtime (Voice)
+   AZURE_OPENAI_ENDPOINT=https://<your-instance>.openai.azure.com
+   AZURE_OPENAI_API_KEY=<your-api-key>
    AZURE_OPENAI_REALTIME_DEPLOYMENT=gpt-realtime
    AZURE_OPENAI_REALTIME_API_VERSION=2025-04-01-preview
-   AZURE_OPENAI_REALTIME_VOICE_CHOICE=<choose one: alloy, ash, coral, echo, fable, nova, sage, shimmer>
+   AZURE_OPENAI_REALTIME_VOICE_CHOICE=alloy  # Options: alloy, ash, coral, echo, fable, nova, sage, shimmer
+   AZURE_OPENAI_REALTIME_TRANSCRIPTION_LANGUAGE=fr  # fr for French, en for English
+
+   # Azure OpenAI Configuration for GPT-Audio (Text-to-Speech)
+   AZURE_OPENAI_AUDIO_ENDPOINT=https://<your-instance>.openai.azure.com
+   AZURE_OPENAI_AUDIO_API_KEY=<your-api-key>
    AZURE_OPENAI_AUDIO_DEPLOYMENT=gpt-audio
-   AZURE_OPENAI_API_VERSION=2025-01-01-preview
-   AZURE_OPENAI_API_KEY=<your api key>
-   AZURE_SEARCH_ENDPOINT=https://<your service name>.search.windows.net
-   AZURE_SEARCH_INDEX=<your index name>
-   AZURE_SEARCH_API_KEY=<your api key>
+   AZURE_OPENAI_AUDIO_API_VERSION=2025-01-01-preview
+   AZURE_OPENAI_AUDIO_VOICE_CHOICE=alloy
+
+   # Azure Search Configuration (for RAG)
+   AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-3-large
+   AZURE_SEARCH_ENDPOINT=https://<your-service>.search.windows.net
+   AZURE_SEARCH_API_KEY=<your-search-api-key>
+   AZURE_SEARCH_INDEX=voicerag-intvect
+   AZURE_SEARCH_SEMANTIC_CONFIGURATION=default
+   AZURE_SEARCH_IDENTIFIER_FIELD=chunk_id
+   AZURE_SEARCH_CONTENT_FIELD=chunk
+   AZURE_SEARCH_EMBEDDING_FIELD=text_vector
+   AZURE_SEARCH_TITLE_FIELD=title
+   AZURE_SEARCH_USE_VECTOR_QUERY=true
+
+   # Application Configuration
+   RUNNING_IN_PRODUCTION=false
+
+   # Optional: Azure Authentication (if not using API keys)
+   # AZURE_TENANT_ID=<your-tenant-id>
    ```
 
-   To use Entra ID (your user when running locally, managed identity when deployed) simply don't set the keys.
+   **To use Entra ID** (your user when running locally, managed identity when deployed) simply don't set the `AZURE_OPENAI_API_KEY` and `AZURE_SEARCH_API_KEY`.
 
 ### Installation & Setup
 
 3. Install the required dependencies for both API and backend services:
 
    ```shell
-   cd app/api
+   # Install backend requirements
+   cd app/backend
    pip install -r requirements.txt
-   cd ../backend
+   
+   # Install API requirements
+   cd ../api
    pip install -r requirements.txt
    ```
 
-4. If you need to initialize the Azure AI Search index with the insurance FAQ data:
+4. (Optional) If you need to re-initialize the Azure AI Search index with the insurance FAQ data:
 
    ```shell
    cd app/backend
    python setup_intvect.py
-   # Note: For local development, modify the path in setup_intvect.py 
-   # to point to ../../data/faq.json instead of the relative path
    ```
 
 ### Running the Application
@@ -324,7 +347,6 @@ This script validates:
 
    **Windows (PowerShell):**
    ```pwsh
-   cd ../../
    pwsh .\scripts\start.ps1
    ```
 
@@ -334,37 +356,40 @@ This script validates:
    ```
 
    **Alternative - Use VS Code Task:**
-   ```
-   Run the "Start app" task from VS Code's task runner
-   ```
+   - Open VS Code Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
+   - Run task: "Start app"
 
 ### Verification
 
 6. Verify the services are running:
-   - **API Health Check**: [http://localhost:8765/health](http://localhost:8765/health)
-   - **Main Application**: [http://localhost:8000](http://localhost:8000)
+   - **Backend Health**: [http://localhost:8000](http://localhost:8000)
+   - **API Health**: [http://localhost:8765/health](http://localhost:8765/health)
 
    The API should return: `MAAF/MAIF Insurance Voice Assistant API`
 
 7. **Testing the Application**: 
-   Navigate to [http://localhost:8000](http://localhost:8000) to see the hybrid insurance assistant interface:
+   Navigate to [http://localhost:8000](http://localhost:8000) to see the hybrid insurance assistant interface.
 
-   ![app screenshot](docs/talkwithstuaircraftassistant.png)
-
-   **Voice Mode Testing:**
+   **Voice Chat Mode (Realtime API):**
    - Click the "Voice Chat (Realtime)" tab  
-   - Click the "microphone button"
+   - Click the "Start conversation" button
    - Say "Hello" to initialize
    - Ask insurance-related questions like:
-     - "What insurance products does MAAF offer?"
-     - "How can I contact MAIF customer service?"
-     - "Tell me about MAAF's auto insurance policies"
+     - "Quels sont les produits d'assurance de MAAF?" (What insurance products does MAAF offer?)
+     - "Comment contacter le service client MAIF?" (How to contact MAIF customer service?)
+     - "Parlez-moi des polices d'assurance automobile MAAF" (Tell me about MAAF's auto policies)
 
-   **Text Mode Testing:**
+   **Text Chat Mode (GPT-Audio):**
    - Click the "Text Chat (GPT-Audio)" tab
-   - Type questions in the text input field
-   - Receive text and audio responses
-   - Test voice selection with different AI personalities
+   - Type your question in the text field
+   - Receive both text response and audio output
+   - Use the voice selector (🔊) to change between 8 AI voices
+
+   **Features to Try:**
+   - Click the Help button (?) for demo guide with real example questions
+   - Use the voice selector to switch between different AI personalities
+   - Toggle between voice and text modes seamlessly
+   - View grounding information showing which FAQ sources were used
 
 ## Voice Configuration
 
