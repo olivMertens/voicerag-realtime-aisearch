@@ -1,6 +1,6 @@
 """
 Azure Monitor OpenTelemetry configuration for tracking tool calls and model usage
-Compatible with Application Insights and AI Foundry
+Compatible with Application Insights and Microsoft Foundry
 """
 import os
 import time
@@ -20,7 +20,7 @@ logger = logging.getLogger("telemetry")
 
 def setup_azure_monitor():
     """
-    Setup Azure Monitor OpenTelemetry integration with AI Foundry compatibility.
+    Setup Azure Monitor OpenTelemetry integration with Microsoft Foundry compatibility.
     This should be called once at application startup.
     """
     try:
@@ -41,12 +41,12 @@ def setup_azure_monitor():
         elif instrumentation_key:
             logger.info(f"✅ Using APPINSIGHTS_INSTRUMENTATIONKEY: {instrumentation_key[:10]}...")
         
-        # Configure Azure Monitor with enhanced settings for AI Foundry
+        # Configure Azure Monitor with enhanced settings for Microsoft Foundry
         try:
             configure_azure_monitor(
                 logger_name="insurance_voice_assistant",
                 connection_string=connection_string if connection_string else None,
-                # Enable additional features for AI Foundry
+                # Enable additional features for Microsoft Foundry
                 enable_live_metrics=True,
                 # Sample rate for performance (1.0 = 100% sampling)
                 sampling_rate=1.0
@@ -75,18 +75,18 @@ def setup_azure_monitor():
         except Exception as e:
             logger.warning(f"⚠️ HTTP instrumentation failed: {e}")
         
-        # Set custom resource attributes for AI Foundry
+        # Set custom resource attributes for Microsoft Foundry
         try:
             from opentelemetry.sdk.resources import Resource
             from opentelemetry import trace
             
-            # Get AI Foundry project information from environment
-            ai_foundry_project = os.environ.get("AZURE_AI_FOUNDRY_PROJECT_NAME", "maif-insurance-assistant")
+            # Get Microsoft Foundry project information from environment
+            ai_foundry_project = os.environ.get("AZURE_AI_FOUNDRY_PROJECT_NAME", "groupama-insurance-assistant")
             ai_foundry_hub = os.environ.get("AZURE_AI_FOUNDRY_HUB_NAME", "")
             deployment_env = os.environ.get("RUNNING_IN_PRODUCTION", "false")
             
             resource_attributes = {
-                "service.name": "maif-voice-assistant",
+                "service.name": "groupama-voice-assistant",
                 "service.version": "1.0.0",
                 "service.namespace": "insurance",
                 "deployment.environment": "production" if deployment_env.lower() == "true" else "development",
@@ -94,7 +94,7 @@ def setup_azure_monitor():
                 "ai.foundry.enabled": "true"
             }
             
-            # Add AI Foundry specific attributes if available
+            # Add Microsoft Foundry specific attributes if available
             if ai_foundry_project:
                 resource_attributes["ai.foundry.project"] = ai_foundry_project
                 resource_attributes["ai.foundry.project.name"] = ai_foundry_project
@@ -109,12 +109,12 @@ def setup_azure_monitor():
                 resource_attributes["azure.resource_group"] = resource_group
             
             resource = Resource.create(resource_attributes)
-            logger.info(f"✅ AI Foundry resource attributes set: {ai_foundry_project}")
+            logger.info(f"✅ Microsoft Foundry resource attributes set: {ai_foundry_project}")
             
         except Exception as e:
             logger.warning(f"⚠️ Resource attributes setup failed: {e}")
         
-        logger.info("✅ Azure Monitor OpenTelemetry configured for AI Foundry")
+        logger.info("✅ Azure Monitor OpenTelemetry configured for Microsoft Foundry")
         global _azure_monitor_configured
         _azure_monitor_configured = True
         return True
@@ -130,19 +130,19 @@ def setup_azure_monitor():
 
 def get_tracer():
     """Get OpenTelemetry tracer for creating spans"""
-    return trace.get_tracer("maif_voice_assistant")
+    return trace.get_tracer("groupama_voice_assistant")
 
 def trace_tool_call(tool_name: str, args: Dict[str, Any], duration: Optional[float] = None, 
                    response: Optional[Any] = None, response_size: Optional[int] = None):
-    """Trace a tool call with AI Foundry semantic conventions"""
+    """Trace a tool call with Microsoft Foundry semantic conventions"""
     tracer = get_tracer()
     
     with tracer.start_as_current_span(f"ai_tool.{tool_name}") as span:
-        # Set AI Foundry compatible attributes
+        # Set Microsoft Foundry compatible attributes
         span.set_attributes({
             # Standard semantic conventions
             "operation.name": f"ai_tool.{tool_name}",
-            "ai.system": "maif_voice_assistant",
+            "ai.system": "groupama_voice_assistant",
             "ai.tool.name": tool_name,
             "ai.tool.type": "function",
             
@@ -155,11 +155,11 @@ def trace_tool_call(tool_name: str, args: Dict[str, Any], duration: Optional[flo
             "span.kind": "internal"
         })
         
-        if duration:
+        if duration is not None:
             span.set_attribute("duration_ms", duration * 1000)
             span.set_attribute("ai.tool.duration_ms", duration * 1000)
         
-        # Add response details with AI Foundry conventions
+        # Add response details with Microsoft Foundry conventions
         if response is not None:
             if isinstance(response, dict):
                 span.set_attribute("ai.tool.response.type", "dict")
@@ -193,7 +193,7 @@ def trace_tool_call(tool_name: str, args: Dict[str, Any], duration: Optional[flo
                 span.set_attribute("ai.tool.response.type", type(response).__name__)
                 span.set_attribute("ai.tool.response.preview", str(response)[:500])
         
-        if response_size:
+        if response_size is not None:
             span.set_attribute("ai.tool.response.size_bytes", response_size)
         
         # Mark as successful
@@ -204,10 +204,10 @@ def trace_tool_call(tool_name: str, args: Dict[str, Any], duration: Optional[flo
             "id": f"{span.get_span_context().span_id:016x}",
             "tool_name": tool_name,
             "args": args,
-            "response_preview": str(response)[:200] if response else None,
+            "response_preview": str(response)[:200] if response is not None else None,
             "timestamp": time.time(),
             "duration": duration,
-            "status": "completed" if duration else "running"
+            "status": "completed" if duration is not None else "running"
         }
         _tool_calls.append(tool_call)
         
@@ -215,7 +215,11 @@ def trace_tool_call(tool_name: str, args: Dict[str, Any], duration: Optional[flo
         if len(_tool_calls) > 50:
             _tool_calls[:] = _tool_calls[-50:]
         
-        logger.info(f"🔧 Tool call traced: {tool_name} (duration: {duration:.3f}s)" if duration else f"🔧 Tool call started: {tool_name}")
+        logger.info(
+            f"🔧 Tool call traced: {tool_name} (duration: {duration:.3f}s)"
+            if duration is not None
+            else f"🔧 Tool call started: {tool_name}"
+        )
         return span
 
 def trace_model_call(model_name: str, operation: str, tokens_used: Optional[int] = None, 
@@ -340,9 +344,14 @@ def trace_search_operation(query: str, results_count: int, search_type: str = "h
 
 def get_telemetry_data() -> Dict[str, Any]:
     """Get current telemetry data for UI"""
+    try:
+        ui_limit = int(os.environ.get("TELEMETRY_UI_LIMIT", "50"))
+    except ValueError:
+        ui_limit = 50
+    ui_limit = max(10, min(ui_limit, 200))
     return {
-        "tool_calls": _tool_calls[-10:],  # Last 10 for UI
-        "model_calls": _model_calls[-10:],  # Last 10 for UI
+        "tool_calls": _tool_calls[-ui_limit:],
+        "model_calls": _model_calls[-ui_limit:],
         "stats": {
             "total_tool_calls": len(_tool_calls),
             "total_model_calls": len(_model_calls),
