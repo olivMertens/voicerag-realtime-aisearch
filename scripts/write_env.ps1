@@ -17,6 +17,14 @@ function Get-AzdEnvValue([string]$name) {
 	return $value
 }
 
+function Try-GetAzdEnvValue([string]$name) {
+       try {
+	       return Get-AzdEnvValue $name
+       } catch {
+	       return $null
+       }
+}
+
 $azureOpenAiEndpoint = Get-AzdEnvValue "AZURE_OPENAI_ENDPOINT"
 $azureOpenAiRealtimeDeployment = Get-AzdEnvValue "AZURE_OPENAI_REALTIME_DEPLOYMENT"
 $azureOpenAiRealtimeVoiceChoice = Get-AzdEnvValue "AZURE_OPENAI_REALTIME_VOICE_CHOICE"
@@ -29,7 +37,11 @@ $azureSearchTitleField = Get-AzdEnvValue "AZURE_SEARCH_TITLE_FIELD"
 $azureSearchContentField = Get-AzdEnvValue "AZURE_SEARCH_CONTENT_FIELD"
 $azureSearchEmbeddingField = Get-AzdEnvValue "AZURE_SEARCH_EMBEDDING_FIELD"
 $azureSearchUseVectorQuery = Get-AzdEnvValue "AZURE_SEARCH_USE_VECTOR_QUERY"
-$azureApiEndpoint = Get-AzdEnvValue "AZURE_API_ENDPOINT"
+$azureApiEndpoint = Try-GetAzdEnvValue "AZURE_API_ENDPOINT"
+if (-not $azureApiEndpoint) {
+	# Backward compatible with current IaC output naming
+	$azureApiEndpoint = Get-AzdEnvValue "API_URI"
+}
 
 Add-Content -Path $envFilePath -Value "AZURE_OPENAI_ENDPOINT=$azureOpenAiEndpoint"
 Add-Content -Path $envFilePath -Value "AZURE_OPENAI_REALTIME_DEPLOYMENT=$azureOpenAiRealtimeDeployment"

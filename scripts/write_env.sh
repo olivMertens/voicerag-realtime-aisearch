@@ -32,4 +32,9 @@ echo "AZURE_SEARCH_CONTENT_FIELD=$(get_azd_value AZURE_SEARCH_CONTENT_FIELD)" >>
 echo "AZURE_SEARCH_TITLE_FIELD=$(get_azd_value AZURE_SEARCH_TITLE_FIELD)" >> $ENV_FILE_PATH
 echo "AZURE_SEARCH_EMBEDDING_FIELD=$(get_azd_value AZURE_SEARCH_EMBEDDING_FIELD)" >> $ENV_FILE_PATH
 echo "AZURE_SEARCH_USE_VECTOR_QUERY=$(get_azd_value AZURE_SEARCH_USE_VECTOR_QUERY)" >> $ENV_FILE_PATH
-echo "AZURE_API_ENDPOINT=$(get_azd_value AZURE_API_ENDPOINT)" >> $ENV_FILE_PATH
+api_endpoint="$(azd env get-value AZURE_API_ENDPOINT 2>/dev/null || true)"
+if [ -z "$api_endpoint" ] || echo "$api_endpoint" | grep -q '^ERROR:'; then
+	# Backward compatible with current IaC output naming
+	api_endpoint="$(get_azd_value API_URI)"
+fi
+echo "AZURE_API_ENDPOINT=$api_endpoint" >> $ENV_FILE_PATH
