@@ -15,6 +15,7 @@ import { CallHistoryPopup } from "@/components/ui/call-history-popup";
 import { AudioPlayer } from "@/components/ui/audio-player";
 import { CompactVoiceSelector } from "@/components/ui/compact-voice-selector";
 import ContentSafetyPopup from "@/components/ui/content-safety-popup";
+import { HelpDialog } from "@/components/ui/help-dialog";
 
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import useRealTime from "@/hooks/useRealtime";
@@ -152,6 +153,7 @@ function AppContent() {
     const [completedAssistantMessages, setCompletedAssistantMessages] = useState<string[]>([]);
     const [isTelemetryVisible, setIsTelemetryVisible] = useState(false);
     const [isTranscriptVisible, setIsTranscriptVisible] = useState(false);
+    const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [ragSources, setRagSources] = useState<RagSource[]>([]);
     const [enhancedGrounding, setEnhancedGrounding] = useState<EnhancedToolResult | null>(null);
     const [isGroundingVisible, setIsGroundingVisible] = useState(false);
@@ -384,20 +386,25 @@ function AppContent() {
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div className="floating-element pointer-events-none absolute left-10 top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
                 <div
-                    className="floating-element pointer-events-none absolute right-16 top-40 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl"
-                    style={{ animationDelay: "2s" }}
+                    className="floating-element pointer-events-none absolute right-16 top-40 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl [animation-delay:2s]"
                 ></div>
                 <div
-                    className="floating-element pointer-events-none absolute bottom-20 left-1/3 h-80 w-80 rounded-full bg-purple-400/10 blur-3xl"
-                    style={{ animationDelay: "4s" }}
+                    className="floating-element pointer-events-none absolute bottom-20 left-1/3 h-80 w-80 rounded-full bg-purple-400/10 blur-3xl [animation-delay:4s]"
                 ></div>
             </div>
 
+            <HelpDialog open={isHelpOpen} onOpenChange={setIsHelpOpen} />
+
             {/* Header with logo */}
             <header className="pointer-events-none relative z-10">
-                <div className="glass-card floating-element pointer-events-auto absolute left-6 top-6 rounded-2xl p-4">
+                <button
+                    type="button"
+                    onClick={() => setIsHelpOpen(true)}
+                    className="glass-card floating-element pointer-events-auto absolute left-6 top-6 rounded-2xl p-4 transition-colors hover:bg-white/10"
+                    aria-label={t("help.open")}
+                >
                     <Shield className="h-16 w-16 text-white drop-shadow-lg" />
-                </div>
+                </button>
             </header>
 
             <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 pb-20">
@@ -592,6 +599,7 @@ function AppContent() {
 
             {/* Floating Icons Bar with all 5 buttons */}
             <FloatingIconsBar
+                onHelpClick={() => setIsHelpOpen(true)}
                 onTelemetryClick={() => setIsTelemetryVisible(!isTelemetryVisible)}
                 onTranscriptClick={() => setIsTranscriptVisible(!isTranscriptVisible)}
                 onNewSessionClick={() => {
@@ -619,6 +627,7 @@ function AppContent() {
                 onRestartClick={handleRestartConversation}
                 isTelemetryActive={isTelemetryVisible}
                 isTranscriptActive={isTranscriptVisible}
+                isHelpActive={isHelpOpen}
             />
 
             {/* Telemetry Panel */}

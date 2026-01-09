@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Activity, Database, Search, Phone, Building, AlertCircle, Wrench, RefreshCw } from "lucide-react";
 import ToolCallDetail from "./tool-call-detail";
+import { useTranslation } from "react-i18next";
 
 interface ToolCall {
     id: string;
@@ -73,6 +74,7 @@ const formatDuration = (duration?: number) => {
 };
 
 export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; onToggle: () => void }) {
+    const { t } = useTranslation();
     const [telemetryData, setTelemetryData] = useState<TelemetryData | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<"overview" | "tools">("overview");
@@ -109,14 +111,14 @@ export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; on
             <div className="flex items-center justify-between border-b border-white/10 p-4">
                 <div className="flex items-center gap-2">
                     <Activity className="h-5 w-5 text-blue-400" />
-                    <h3 className="font-semibold">Télémétrie Microsoft Foundry</h3>
+                    <h3 className="font-semibold">{t("telemetry.title")}</h3>
                 </div>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={fetchTelemetryData}
                         disabled={isLoading}
                         className="rounded-full p-1.5 transition-colors hover:bg-white/10 disabled:opacity-50"
-                        title="Rafraîchir les données"
+                        title={t("telemetry.refresh")}
                     >
                         <RefreshCw className={`h-4 w-4 text-white/60 hover:text-white ${isLoading ? "animate-spin" : ""}`} />
                     </button>
@@ -134,7 +136,7 @@ export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; on
                         activeTab === "overview" ? "border-b-2 border-blue-400 text-blue-400" : "text-white/60 hover:text-white"
                     }`}
                 >
-                    Vue d'ensemble
+                    {t("telemetry.tabOverview")}
                 </button>
                 <button
                     onClick={() => setActiveTab("tools")}
@@ -143,7 +145,7 @@ export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; on
                     }`}
                 >
                     <Wrench className="mr-1 inline h-4 w-4" />
-                    Outils
+                    {t("telemetry.tabTools")}
                 </button>
             </div>
 
@@ -161,22 +163,22 @@ export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; on
                                 {/* Stats */}
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div className="glass-dark rounded-lg p-3">
-                                        <div className="text-xs text-white/60">Appels d'outils</div>
+                                        <div className="text-xs text-white/60">{t("telemetry.statsToolCalls")}</div>
                                         <div className="text-lg font-semibold">{telemetryData.stats.total_tool_calls}</div>
-                                        <div className="text-xs text-white/40">{telemetryData.tool_calls.length > 0 ? "Actifs" : "Aucun"}</div>
+                                        <div className="text-xs text-white/40">{telemetryData.tool_calls.length > 0 ? t("telemetry.active") : t("telemetry.none")}</div>
                                     </div>
                                     <div className="glass-dark rounded-lg p-3">
-                                        <div className="text-xs text-white/60">Recherches</div>
+                                        <div className="text-xs text-white/60">{t("telemetry.statsSearches")}</div>
                                         <div className="text-lg font-semibold">
                                             {telemetryData.tool_calls.filter(call => call.tool_name === "search").length}
                                         </div>
-                                        <div className="text-xs text-white/40">Base de connaissances</div>
+                                        <div className="text-xs text-white/40">{t("telemetry.knowledgeBase")}</div>
                                     </div>
                                 </div>
 
                                 {/* Recent Activity Summary */}
                                 <div className="space-y-2">
-                                    <h4 className="text-sm font-medium text-white/80">Outils utilisés récemment</h4>
+                                    <h4 className="text-sm font-medium text-white/80">{t("telemetry.recentTools")}</h4>
                                     {telemetryData.tool_calls.length > 0 ? (
                                         telemetryData.tool_calls
                                             .slice(-3)
@@ -193,7 +195,7 @@ export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; on
                                                     {call.args && Object.keys(call.args).length > 0 && (
                                                         <div className="mt-1 truncate text-[10px] text-white/50">
                                                             {call.tool_name === "search" && call.args.query
-                                                                ? `Recherche: "${call.args.query}"`
+                                                                ? t("telemetry.searchPreview", { query: call.args.query })
                                                                 : JSON.stringify(call.args).substring(0, 40) + "..."}
                                                         </div>
                                                     )}
@@ -202,8 +204,8 @@ export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; on
                                     ) : (
                                         <div className="py-4 text-center text-white/60">
                                             <Wrench className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                                            <p className="text-xs">Aucun outil utilisé</p>
-                                            <p className="mt-1 text-[10px] text-white/40">Les appels d'outils apparaîtront ici</p>
+                                            <p className="text-xs">{t("telemetry.noToolsUsed")}</p>
+                                            <p className="mt-1 text-[10px] text-white/40">{t("telemetry.callsAppearHere")}</p>
                                         </div>
                                     )}
                                 </div>
@@ -213,20 +215,20 @@ export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; on
                         {/* Tools Tab */}
                         {activeTab === "tools" && (
                             <div className="space-y-3">
-                                <h4 className="text-sm font-medium text-white/80">Traces des appels d'outils</h4>
+                                <h4 className="text-sm font-medium text-white/80">{t("telemetry.toolCallTraces")}</h4>
                                 {telemetryData.tool_calls.length > 0 ? (
                                     telemetryData.tool_calls
                                         .slice()
                                         .reverse()
                                         .map((call, index) => <ToolCallDetail key={call.id || index} call={call} />)
                                 ) : (
-                                    <div className="py-4 text-center text-white/60">Aucun appel d'outil</div>
+                                    <div className="py-4 text-center text-white/60">{t("telemetry.noToolCalls")}</div>
                                 )}
                             </div>
                         )}
                     </div>
                 ) : (
-                    <div className="py-4 text-center text-white/60">Télémétrie non disponible</div>
+                    <div className="py-4 text-center text-white/60">{t("telemetry.unavailable")}</div>
                 )}
             </div>
         </div>

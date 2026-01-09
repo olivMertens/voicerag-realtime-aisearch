@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, User, Bot, Mic, MicOff, Download } from 'lucide-react';
 import UserTranscriptCapture from './user-transcript-capture';
+import { useTranslation } from "react-i18next";
 
 interface TranscriptMessage {
   id: string;
@@ -29,6 +30,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
   isVisible,
   onToggle
 }) => {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<TranscriptMessage[]>([]);
   const [activeTab, setActiveTab] = useState<'realtime' | 'capture'>('realtime');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -103,14 +105,14 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
     console.log('📝 Downloading transcript with messages:', allTranscriptMessages.length);
 
     if (allTranscriptMessages.length === 0) {
-      alert('Aucun transcript à télécharger');
+      alert(t("transcript.noTranscriptToDownload"));
       return;
     }
 
     const transcriptText = allTranscriptMessages
       .map(message => {
         const timestamp = new Date(message.timestamp).toLocaleString();
-        const role = message.type === 'user' ? 'Utilisateur' : 'Assistant IA';
+        const role = message.type === 'user' ? t("transcript.roleUser") : t("transcript.roleAssistant");
         return `[${timestamp}] ${role}: ${message.content}`;
       })
       .join('\n\n');
@@ -151,7 +153,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-white font-semibold flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
-              Transcriptions
+              {t("transcript.title")}
               {isRecording && <Mic className="h-4 w-4 text-red-400 animate-pulse" />}
               {!isRecording && <MicOff className="h-4 w-4 text-gray-400" />}
             </h3>
@@ -164,7 +166,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
                   downloadTranscript();
                 }}
                 className="interactive-button p-2 hover:bg-white/20 rounded-full transition-all duration-200 z-50 relative"
-                title="Télécharger les transcriptions"
+                title={t("transcript.download")}
                 type="button"
               >
                 <Download className="h-4 w-4 text-white/80 hover:text-white" />
@@ -177,7 +179,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
                   onToggle();
                 }}
                 className="interactive-button p-2 hover:bg-white/20 rounded-full transition-all duration-200 z-50 relative text-white/80 hover:text-white text-lg font-bold leading-none"
-                title="Fermer le panneau"
+                title={t("transcript.close")}
                 type="button"
               >
                 ×
@@ -195,7 +197,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Temps réel
+              {t("transcript.tabRealtime")}
             </button>
             <button
               onClick={() => setActiveTab('capture')}
@@ -205,7 +207,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
                   : 'text-white/60 hover:text-white'
               }`}
             >
-              Capture vocale
+              {t("transcript.tabCapture")}
             </button>
           </div>
         </div>
@@ -254,10 +256,10 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
               {currentUserInput && (
                 <div className="flex gap-3 justify-end">
                   <div className="max-w-[80%] bg-white/10 text-white/80 rounded-2xl px-4 py-2 glass-card border-2 border-green-400/30">
-                    <p className="text-sm leading-relaxed">utilisateur : "{currentUserInput}"</p>
+                    <p className="text-sm leading-relaxed">{t("transcript.userLivePrefix")}: "{currentUserInput}"</p>
                     <div className="text-xs text-green-400 mt-1 flex items-center gap-1">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                      En cours...
+                      {t("transcript.inProgress")}
                     </div>
                   </div>
                   <div className="flex-shrink-0 w-8 h-8 glass-card rounded-full flex items-center justify-center border-2 border-green-400/30">
@@ -276,7 +278,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
                     <p className="text-sm leading-relaxed">{currentAssistantResponse}</p>
                     <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
                       <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-                      En cours de génération...
+                      {t("transcript.generating")}
                     </div>
                   </div>
                 </div>
@@ -286,7 +288,7 @@ export const TranscriptPanel: React.FC<TranscriptPanelProps> = ({
                 <div className="p-8 text-center text-white/60">
                   <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">
-                    Commencez à parler pour voir le transcript des conversations
+                    {t("transcript.empty")}
                   </p>
                 </div>
               )}

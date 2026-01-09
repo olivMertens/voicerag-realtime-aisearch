@@ -139,13 +139,13 @@ def get_policies_data() -> List[Dict[str, Any]]:
         {
             "id": 10,
             "policy": "GROUPAMA-SANTE-010",
-            "name": "Jérôme Parel",
+            "name": "Jérôme Pareille",
             "first_name": "Jérôme",
-            "last_name": "Parel",
+            "last_name": "Pareille",
             "type": "Santé",
             "status": "Active",
             "premium": 510.00,
-            "coverage": "Contrat Santé Collectif (Remboursements de groupe)",
+            "coverage": "Contrat Santé Collectif",
             "beneficiaries": 1,
             "start_date": "2024-01-01",
             "end_date": "2024-12-31"
@@ -556,16 +556,16 @@ def get_claims_data() -> List[Dict[str, Any]]:
         {
             "id": "CLAIM-010",
             "policy_number": "GROUPAMA-SANTE-010",
-            "holder": "Jérôme Parel",
+            "holder": "Jérôme Pareille",
             "holder_first_name": "Jérôme",
-            "holder_last_name": "Parel",
+            "holder_last_name": "Pareille",
             "type": "Santé (Collectif)",
-            "description": "Remboursement de groupe incomplet",
-            "status": "En cours de régularisation",
+            "description": "Demande de prise en charge dentaire",
+            "status": "En cours de traitement",
             "estimated_amount": 135.00,
             "declaration_date": "2024-09-20",
             "incident_date": "2024-09-18",
-            "long_description": "Remboursement d'un acte médical sur contrat collectif: montant perçu inférieur à l'attendu. Vérification des flux de télétransmission et du paramétrage du contrat de groupe.",
+            "long_description": "Demande de prise en charge d'un soin dentaire sur contrat santé collectif. Vérification des garanties, des plafonds et des pièces (devis/facture et décompte Sécurité sociale si applicable).",
             "call_history": [
                 {
                     "call_id": "CALL-001-010",
@@ -573,13 +573,13 @@ def get_claims_data() -> List[Dict[str, Any]]:
                     "time": "12:05",
                     "duration": "17 minutes",
                     "agent": "Thomas Durand",
-                    "summary": "M. Parel signale un remboursement de groupe incomplet sur son contrat santé collectif. Contrôle des décomptes et des garanties.",
+                    "summary": "M. Pareille sollicite une prise en charge dentaire sur son contrat santé collectif. Vérification des garanties et des documents nécessaires.",
                     "decisions": [
-                        "Dossier remboursement ouvert",
-                        "Vérification contrat collectif / paramétrage garanties",
-                        "Demande du décompte Sécurité sociale + facture"
+                        "Dossier ouvert",
+                        "Contrôle garanties dentaire / plafonds",
+                        "Demande du devis (ou facture) + documents justificatifs"
                     ],
-                    "next_actions": "Transmettre décompte + facture; retour sous 5 jours ouvrés"
+                    "next_actions": "Transmettre devis/facture + justificatifs; retour sous 5 jours ouvrés"
                 },
                 {
                     "call_id": "CALL-002-010",
@@ -587,13 +587,13 @@ def get_claims_data() -> List[Dict[str, Any]]:
                     "time": "09:50",
                     "duration": "9 minutes",
                     "agent": "Nadia Pelletier",
-                    "summary": "Suivi dossier remboursement collectif. Une correction de paramétrage est en cours, un complément devrait être versé.",
+                    "summary": "Suivi dossier dentaire. Pièces reçues, estimation de prise en charge communiquée et prochaines étapes rappelées.",
                     "decisions": [
-                        "Anomalie de paramétrage identifiée",
-                        "Correction en cours",
-                        "Complément de remboursement autorisé"
+                        "Dossier complet",
+                        "Estimation de prise en charge validée",
+                        "Orientation vers réseau de soins si pertinent"
                     ],
-                    "next_actions": "Attendre virement complémentaire; confirmation envoyée"
+                    "next_actions": "Poursuivre le parcours de soins; confirmation envoyée"
                 }
             ]
         }

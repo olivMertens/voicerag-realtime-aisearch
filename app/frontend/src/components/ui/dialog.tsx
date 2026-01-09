@@ -12,6 +12,7 @@ const Dialog: React.FC<DialogProps> = ({ open, onOpenChange, children }) => {
   
   // Handle escape key
   React.useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onOpenChange(false);
@@ -25,12 +26,12 @@ const Dialog: React.FC<DialogProps> = ({ open, onOpenChange, children }) => {
     
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = previousOverflow;
     };
   }, [open, onOpenChange]);
   
   return (
-    <div className="fixed inset-0 z-[9999]" style={{ zIndex: 9999 }}>
+    <div className="fixed inset-0 z-[9999]" role="dialog" aria-modal="true">
       <div 
         className="fixed inset-0 bg-black/80 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
@@ -47,9 +48,9 @@ interface DialogContentProps {
 
 const DialogContent: React.FC<DialogContentProps> = ({ className, children }) => (
   <div className={cn(
-    'fixed left-[50%] top-[50%] z-[10000] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-slate-200 bg-white p-6 shadow-lg rounded-lg',
+    'fixed left-[50%] top-[50%] z-[10000] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border border-slate-200 bg-white p-6 shadow-lg max-h-[90vh] overflow-hidden',
     className
-  )} style={{ zIndex: 10000 }}>
+  )}>
     {children}
   </div>
 );
