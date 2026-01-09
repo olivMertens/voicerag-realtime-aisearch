@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import subprocess
+import hashlib
 
 import json
 import logging
@@ -193,6 +194,24 @@ def setup_index(azure_credential, index_name, azure_search_endpoint, azure_stora
 def upload_documents(azure_credential, index_name, azure_search_endpoint, azure_openai_embedding_endpoint, azure_openai_embedding_deployment):
     try:
         search_client = SearchClient(endpoint=azure_search_endpoint, index_name=index_name, credential=azure_credential)
+
+        # Optional: purge existing docs to avoid duplicates when chunk_id values change across runs.
+        purge_before_upload = os.environ.get("AZURE_SEARCH_PURGE_BEFORE_UPLOAD", "true").lower() == "true"
+        if purge_before_upload:
+            try:
+                existing_ids = []
+                # Azure Search returns an iterator; collect up to a reasonable cap.
+                search_results = search_client.search(search_text="*", select=["chunk_id"], top=1000)
+                for r in search_results:
+                    cid = r.get("chunk_id")
+                    if cid:
+                        existing_ids.append(cid)
+                if existing_ids:
+                    logger.info(f"Purging {len(existing_ids)} existing documents from index {index_name}...")
+                    search_client.delete_documents([{ "chunk_id": cid } for cid in existing_ids])
+                    logger.info("✅ Existing documents deleted")
+            except Exception as e:
+                    logger.warning(f"⚠️ Could not purge existing documents (continuing): {type(e).__name__}: {e}")
         
         # Use latest API version for embeddings
         openai_client = AzureOpenAI(
@@ -240,8 +259,10 @@ def upload_documents(azure_credential, index_name, azure_search_endpoint, azure_
                     
                     embedding_vector = generate_embeddings(item["chunk"])
                     
+                    stable_id_source = f"{item.get('category','')}|{item.get('title','')}|{item.get('chunk','')}"
+                    stable_id = hashlib.sha1(stable_id_source.encode("utf-8")).hexdigest()
                     faq_documents.append({
-                        "chunk_id": str(uuid.uuid4()),
+                        "chunk_id": stable_id,
                         "category": item.get("category", "General"),
                         "title": item.get("title", ""),
                         "chunk": item.get("chunk", ""),
@@ -272,11 +293,11 @@ if __name__ == "__main__":
 
     try:
         load_azd_env()
-        
-        logger.info("🔍 Checking if we need to set up Azure AI Search index...")
-        if os.environ.get("AZURE_SEARCH_REUSE_EXISTING") == "true":
-            logger.info("Since an existing Azure AI Search index is being used, no changes will be made to the index.")
-            exit()
+
+        logger.info("🔍 Checking whether to (re)create Azure AI Search index...")
+        reuse_existing_index = os.environ.get("AZURE_SEARCH_REUSE_EXISTING") == "true"
+        if reuse_existing_index:
+            logger.info("Using an existing Azure AI Search index: will refresh documents without recreating the index.")
         else:
             logger.info("🚀 Setting up Azure AI Search index and integrated vectorization...")
 
@@ -343,16 +364,27 @@ if __name__ == "__main__":
                 logger.error("Please ensure you're authenticated with 'az login' or 'azd auth login'")
                 exit(1)
 
-        # Setup the index and upload documents
-        setup_index(azure_credential,
-            index_name=AZURE_SEARCH_INDEX, 
-            azure_search_endpoint=AZURE_SEARCH_ENDPOINT,
-            azure_storage_connection_string=AZURE_STORAGE_CONNECTION_STRING,
-            azure_storage_container=AZURE_STORAGE_CONTAINER,
-            azure_openai_embedding_endpoint=AZURE_OPENAI_EMBEDDING_ENDPOINT,
-            azure_openai_embedding_deployment=AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
-            azure_openai_embedding_model=AZURE_OPENAI_EMBEDDING_MODEL,
-            azure_openai_embeddings_dimensions=EMBEDDINGS_DIMENSIONS)
+        if reuse_existing_index:
+            upload_documents(
+                azure_credential,
+                index_name=AZURE_SEARCH_INDEX,
+                azure_search_endpoint=AZURE_SEARCH_ENDPOINT,
+                azure_openai_embedding_endpoint=AZURE_OPENAI_EMBEDDING_ENDPOINT,
+                azure_openai_embedding_deployment=AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
+            )
+        else:
+            # Setup the index and upload documents
+            setup_index(
+                azure_credential,
+                index_name=AZURE_SEARCH_INDEX,
+                azure_search_endpoint=AZURE_SEARCH_ENDPOINT,
+                azure_storage_connection_string=AZURE_STORAGE_CONNECTION_STRING,
+                azure_storage_container=AZURE_STORAGE_CONTAINER,
+                azure_openai_embedding_endpoint=AZURE_OPENAI_EMBEDDING_ENDPOINT,
+                azure_openai_embedding_deployment=AZURE_OPENAI_EMBEDDING_DEPLOYMENT,
+                azure_openai_embedding_model=AZURE_OPENAI_EMBEDDING_MODEL,
+                azure_openai_embeddings_dimensions=EMBEDDINGS_DIMENSIONS,
+            )
 
         logger.info("🎉 Index setup and document upload completed successfully!")
         
