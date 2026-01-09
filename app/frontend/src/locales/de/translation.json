@@ -1,5 +1,6 @@
 {
     "app": {
+        "title": "Sprechen Sie mit Ihrem Versicherungsberater",
         "notRecordingMessage": "Fragen Sie alles zu Ihrer Groupama-Versicherung (MRH/Wohngebäude, Haftpflicht, Schäden, Assistance) oder fordern Sie eine Aktion an (Policen, Schäden, Agentur, Kontakt).\n\nBeispiele:\n• Ich bin Jérôme Parel – meine Gruppen-Erstattung ist unvollständig. Was soll ich tun?\n• Was deckt die MRH-Wohnversicherung ab (Wasserschaden, Diebstahl, Glasbruch, Vandalismus)?\n• Ich hatte einen Wasserschaden: Was sind die ersten Schritte und welche Nachweise brauche ich?\n• Welche Fristen gelten für Diebstahl oder Vandalismus?\n• Können Sie meine Policen und den Status meiner Schäden abrufen?\n• Wie erreiche ich die 24/7-Assistance oder die nächste Agentur?",
         "footer": "Erstellt mit Azure AI Search + GPT Realtime in Microsoft Foundry",
         "stopRecording": "Gespräch beenden",

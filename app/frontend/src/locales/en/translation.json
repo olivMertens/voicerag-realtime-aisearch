@@ -1,5 +1,6 @@
 {
     "app": {
+        "title": "Talk to your insurance agent",
         "notRecordingMessage": "Ask anything about your Groupama insurance (MRH/home, liability, claims, assistance) or request an action (policies, claims, agency, contact).\n\nExamples:\n• I’m Jérôme Parel — my group reimbursement looks incomplete. What should I do?\n• What does MRH home insurance cover (water damage, theft, glass breakage, vandalism)?\n• I had a water leak: what are the first steps and what proof should I keep?\n• What are the deadlines to declare theft or vandalism?\n• Can you pull up my policies and my claims status?\n• How do I contact 24/7 assistance or my nearest agency?",
         "footer": "Built with Azure AI Search + GPT Realtime in Microsoft Foundry",
         "stopRecording": "Stop conversation",
