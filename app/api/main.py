@@ -40,7 +40,7 @@ async def startup_event():
 
 @app.get("/health")
 async def read_root():
-    return 'MAAF/MAIF Insurance Voice Assistant API'
+    return 'Groupama Insurance Voice Assistant API'
 
 @app.get("/api/policies")
 async def get_policies(policy_number: Optional[str] = None, holder_name: Optional[str] = None, 
@@ -153,7 +153,7 @@ async def get_realtime_policies(policy_type: Optional[str] = None, status: Optio
                                holder_name: Optional[str] = None, first_name: Optional[str] = None, 
                                last_name: Optional[str] = None):
     """
-    Retrieve comprehensive real-time policy information from MAAF/MAIF system.
+    Retrieve comprehensive real-time policy information from the demo system.
     
     - **policy_type**: Filter by policy type (Auto, Habitation, Santé, etc.) (optional)
     - **status**: Filter by policy status (active, suspended, expired, etc.) (optional)
@@ -161,7 +161,7 @@ async def get_realtime_policies(policy_type: Optional[str] = None, status: Optio
     - **first_name**: Search by first name only (e.g., "Jean") (optional)
     - **last_name**: Search by last name only (e.g., "Dupont") (optional)
     """
-    # In a real implementation, this would connect to the actual MAAF/MAIF database
+    # In a real implementation, this would connect to the actual insurance database
     # For now, return the static data with filtering
     policies = get_policies_data()
     
@@ -194,7 +194,7 @@ async def get_realtime_policies(policy_type: Optional[str] = None, status: Optio
 @app.get("/api/agencies")
 async def get_agencies(city: Optional[str] = None, agent_name: Optional[str] = None):
     """
-    Retrieve MAAF and MAIF agency information.
+    Retrieve Groupama agency information.
     
     - **city**: City to find nearby agencies (optional)
     - **agent_name**: Name of specific insurance agent (optional)
@@ -202,26 +202,26 @@ async def get_agencies(city: Optional[str] = None, agent_name: Optional[str] = N
     # Static agency data - in real implementation would come from database
     agencies = [
         {
-            "name": "Agence MAAF Lyon Centre",
+            "name": "Agence Groupama Lyon Centre",
             "city": "Lyon", 
             "address": "123 rue de la République, 69002 Lyon",
-            "phone": "09 72 72 15 15",
+            "phone": "01 45 16 66 66",
             "agents": ["Jean Martin", "Sophie Dubois"],
             "services": ["Auto", "Habitation", "Santé", "Professionnelle"]
         },
         {
-            "name": "Agence MAIF Bordeaux",
+            "name": "Agence Groupama Bordeaux",
             "city": "Bordeaux",
             "address": "456 cours de l'Intendance, 33000 Bordeaux", 
-            "phone": "3015",
+            "phone": "01 45 16 66 66",
             "agents": ["Sophie Bernard", "Pierre Moreau"],
             "services": ["Auto", "Habitation", "Vie", "Jeune"]
         },
         {
-            "name": "Agence MAAF Paris 5ème",
+            "name": "Agence Groupama Paris 5ème",
             "city": "Paris",
             "address": "789 boulevard Saint-Germain, 75005 Paris",
-            "phone": "09 72 72 15 15", 
+            "phone": "01 45 16 66 66", 
             "agents": ["Michel Rousseau", "Anne Lefebvre"],
             "services": ["Auto", "Habitation", "Santé", "Professionnelle"]
         }
@@ -237,31 +237,28 @@ async def get_agencies(city: Optional[str] = None, agent_name: Optional[str] = N
 @app.get("/api/contact")
 async def get_contact_info(service_type: Optional[str] = None, company: Optional[str] = None):
     """
-    Retrieve MAAF and MAIF contact information.
+    Retrieve Groupama contact information.
     
     - **service_type**: Type of service (customer_service, claims, emergency, etc.) (optional) 
-    - **company**: Insurance company (MAAF or MAIF) (optional)
+    - **company**: Insurance company (optional)
     """
     contacts = {
-        "MAAF": {
-            "customer_service": "09 72 72 15 15",
-            "claims": "09 72 72 15 15", 
-            "emergency": "09 72 72 15 16",
-            "roadside_assistance": "09 72 72 15 17",
-            "website": "https://www.maaf.fr"
-        },
-        "MAIF": {
-            "customer_service": "3015",
-            "claims": "3015",
-            "emergency": "05 49 73 73 73", 
-            "roadside_assistance": "05 49 73 73 74",
-            "website": "https://www.maif.fr"
+        "GROUPAMA": {
+            "customer_service": "01 45 16 66 66",
+            "claims": "01 45 16 66 66",
+            "emergency": "01 45 16 66 66",
+            "roadside_assistance": "01 45 16 66 66",
+            "website": "https://www.groupama.fr"
         }
     }
     
     result = contacts
     if company:
-        result = {company.upper(): contacts.get(company.upper(), {})}
+        company_key = company.upper()
+        # Backward compatible: accept legacy company values without exposing them in responses
+        if company_key != "GROUPAMA":
+            company_key = "GROUPAMA"
+        result = {company_key: contacts.get(company_key, {})}
     if service_type:
         filtered = {}
         for comp, services in result.items():

@@ -1,6 +1,4 @@
-"""
-Insurance data loading functions for MAAF/MAIF policies and claims
-"""
+"""Insurance data loading functions for Groupama (demo) policies and claims."""
 import json
 import os
 from typing import List, Dict, Any
@@ -8,13 +6,13 @@ from pathlib import Path
 
 def get_policies_data() -> List[Dict[str, Any]]:
     """
-    Get sample MAAF/MAIF policy data for demonstration purposes.
+    Get sample Groupama (demo) policy data for demonstration purposes.
     In production, this would connect to the actual insurance database.
     """
     return [
         {
             "id": 1,
-            "policy": "MAIF-AUTO-001",
+            "policy": "GROUPAMA-AUTO-001",
             "name": "Jean Dupont",
             "first_name": "Jean",
             "last_name": "Dupont",
@@ -28,7 +26,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 2,
-            "policy": "MAAF-HAB-002",
+            "policy": "GROUPAMA-HAB-002",
             "name": "Marie Martin",
             "first_name": "Marie",
             "last_name": "Martin",
@@ -42,7 +40,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 3,
-            "policy": "MAIF-VIE-003",
+            "policy": "GROUPAMA-VIE-003",
             "name": "Pierre Leroy",
             "first_name": "Pierre",
             "last_name": "Leroy",
@@ -56,7 +54,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 4,
-            "policy": "MAAF-SANTE-004",
+            "policy": "GROUPAMA-SANTE-004",
             "name": "Sophie Dubois",
             "first_name": "Sophie",
             "last_name": "Dubois",
@@ -70,7 +68,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 5,
-            "policy": "MAIF-MOTO-005",
+            "policy": "GROUPAMA-MOTO-005",
             "name": "Julien Moreau",
             "first_name": "Julien",
             "last_name": "Moreau",
@@ -84,7 +82,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 6,
-            "policy": "MAAF-AUTO-006",
+            "policy": "GROUPAMA-AUTO-006",
             "name": "Catherine Leroy",
             "first_name": "Catherine",
             "last_name": "Leroy",
@@ -98,7 +96,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 7,
-            "policy": "MAIF-HAB-007",
+            "policy": "GROUPAMA-HAB-007",
             "name": "Michel Rousseau",
             "first_name": "Michel",
             "last_name": "Rousseau",
@@ -112,7 +110,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 8,
-            "policy": "MAAF-PROF-008",
+            "policy": "GROUPAMA-PROF-008",
             "name": "Anne Lefebvre",
             "first_name": "Anne",
             "last_name": "Lefebvre",
@@ -126,7 +124,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 9,
-            "policy": "MAAF-HAB-003",
+            "policy": "GROUPAMA-HAB-003",
             "name": "Isabelle Durand",
             "first_name": "Isabelle",
             "last_name": "Durand",
@@ -137,18 +135,32 @@ def get_policies_data() -> List[Dict[str, Any]]:
             "property": "Appartement 2 pièces Marseille",
             "start_date": "2024-03-01",
             "end_date": "2025-02-28"
+        },
+        {
+            "id": 10,
+            "policy": "GROUPAMA-SANTE-010",
+            "name": "Jérôme Parel",
+            "first_name": "Jérôme",
+            "last_name": "Parel",
+            "type": "Santé",
+            "status": "Active",
+            "premium": 510.00,
+            "coverage": "Contrat Santé Collectif (Remboursements de groupe)",
+            "beneficiaries": 1,
+            "start_date": "2024-01-01",
+            "end_date": "2024-12-31"
         }
     ]
 
 def get_claims_data() -> List[Dict[str, Any]]:
     """
-    Get sample MAAF/MAIF claims data for demonstration purposes.
+    Get sample Groupama (demo) claims data for demonstration purposes.
     In production, this would connect to the actual insurance database.
     """
     return [
         {
             "id": "CLAIM-001",
-            "policy_number": "MAIF-AUTO-001",
+            "policy_number": "GROUPAMA-AUTO-001",
             "holder": "Jean Dupont",
             "holder_first_name": "Jean",
             "holder_last_name": "Dupont",
@@ -192,7 +204,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-002",
-            "policy_number": "MAAF-HAB-002",
+            "policy_number": "GROUPAMA-HAB-002",
             "holder": "Marie Martin",
             "holder_first_name": "Marie",
             "holder_last_name": "Martin",
@@ -236,7 +248,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-003",
-            "policy_number": "MAIF-MOTO-005",
+            "policy_number": "GROUPAMA-MOTO-005",
             "holder": "Julien Moreau",
             "holder_first_name": "Julien",
             "holder_last_name": "Moreau",
@@ -280,7 +292,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-004",
-            "policy_number": "MAAF-AUTO-006",
+            "policy_number": "GROUPAMA-AUTO-006",
             "holder": "Catherine Leroy",
             "holder_first_name": "Catherine",
             "holder_last_name": "Leroy",
@@ -324,7 +336,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-005",
-            "policy_number": "MAIF-HAB-007",
+            "policy_number": "GROUPAMA-HAB-007",
             "holder": "Michel Rousseau",
             "holder_first_name": "Michel",
             "holder_last_name": "Rousseau",
@@ -368,7 +380,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-006",
-            "policy_number": "MAAF-HAB-003",
+            "policy_number": "GROUPAMA-HAB-003",
             "holder": "Isabelle Durand",
             "holder_first_name": "Isabelle",
             "holder_last_name": "Durand",
@@ -425,7 +437,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-007",
-            "policy_number": "MAIF-VIE-003",
+            "policy_number": "GROUPAMA-VIE-003",
             "holder": "Pierre Leroy",
             "holder_first_name": "Pierre",
             "holder_last_name": "Leroy",
@@ -443,7 +455,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
                     "time": "14:15",
                     "duration": "25 minutes",
                     "agent": "Sandrine Lefebvre",
-                    "summary": "M. Leroy demande rachat partiel 8000€ sur son contrat vie MAIF-VIE-003. Capital actuel: 85000€. Demande motivée par travaux extension maison.",
+                    "summary": "M. Leroy demande rachat partiel 8000€ sur son contrat vie GROUPAMA-VIE-003. Capital actuel: 85000€. Demande motivée par travaux extension maison.",
                     "decisions": [
                         "Rachat partiel 8000€ autorisé",
                         "Valeur de rachat confirmée: 8000€",
@@ -480,36 +492,140 @@ def get_claims_data() -> List[Dict[str, Any]]:
                     "next_actions": "Contact conseiller si besoin - dossier clos"
                 }
             ]
+        },
+        {
+            "id": "CLAIM-008",
+            "policy_number": "GROUPAMA-SANTE-004",
+            "holder": "Sophie Dubois",
+            "holder_first_name": "Sophie",
+            "holder_last_name": "Dubois",
+            "type": "Santé",
+            "description": "Remboursement optique",
+            "status": "En attente de justificatifs",
+            "estimated_amount": 210.00,
+            "declaration_date": "2024-09-03",
+            "incident_date": "2024-09-01",
+            "long_description": "Demande de remboursement lunettes (monture + verres). Télétransmission partielle, besoin de facture acquittée.",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-008",
+                    "date": "2024-09-03",
+                    "time": "10:10",
+                    "duration": "9 minutes",
+                    "agent": "Claire Moreau",
+                    "summary": "Mme Dubois demande un remboursement optique. Vérification des garanties et des pièces manquantes.",
+                    "decisions": [
+                        "Dossier remboursement ouvert",
+                        "Facture acquittée requise",
+                        "Contrôle télétransmission en cours"
+                    ],
+                    "next_actions": "Envoyer facture opticien + décompte Sécurité sociale"
+                }
+            ]
+        },
+        {
+            "id": "CLAIM-009",
+            "policy_number": "GROUPAMA-PROF-008",
+            "holder": "Anne Lefebvre",
+            "holder_first_name": "Anne",
+            "holder_last_name": "Lefebvre",
+            "type": "RC Professionnelle",
+            "description": "Demande d'assistance juridique (activité)",
+            "status": "Conseil fourni",
+            "estimated_amount": 0.00,
+            "declaration_date": "2024-09-11",
+            "incident_date": "2024-09-11",
+            "long_description": "Question sur la couverture RC professionnelle suite à un incident mineur dans le cadre de l'activité.",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-009",
+                    "date": "2024-09-11",
+                    "time": "18:05",
+                    "duration": "12 minutes",
+                    "agent": "Nadia Pelletier",
+                    "summary": "Mme Lefebvre sollicite un avis sur sa couverture RC pro. Recueil des informations et orientation.",
+                    "decisions": [
+                        "Couverture potentielle confirmée sous réserve d'éléments",
+                        "Conseil sur documents à conserver",
+                        "Proposition d'ouverture de dossier si nécessaire"
+                    ],
+                    "next_actions": "Transmettre éléments factuels si ouverture dossier souhaitée"
+                }
+            ]
+        },
+        {
+            "id": "CLAIM-010",
+            "policy_number": "GROUPAMA-SANTE-010",
+            "holder": "Jérôme Parel",
+            "holder_first_name": "Jérôme",
+            "holder_last_name": "Parel",
+            "type": "Santé (Collectif)",
+            "description": "Remboursement de groupe incomplet",
+            "status": "En cours de régularisation",
+            "estimated_amount": 135.00,
+            "declaration_date": "2024-09-20",
+            "incident_date": "2024-09-18",
+            "long_description": "Remboursement d'un acte médical sur contrat collectif: montant perçu inférieur à l'attendu. Vérification des flux de télétransmission et du paramétrage du contrat de groupe.",
+            "call_history": [
+                {
+                    "call_id": "CALL-001-010",
+                    "date": "2024-09-20",
+                    "time": "12:05",
+                    "duration": "17 minutes",
+                    "agent": "Thomas Durand",
+                    "summary": "M. Parel signale un remboursement de groupe incomplet sur son contrat santé collectif. Contrôle des décomptes et des garanties.",
+                    "decisions": [
+                        "Dossier remboursement ouvert",
+                        "Vérification contrat collectif / paramétrage garanties",
+                        "Demande du décompte Sécurité sociale + facture"
+                    ],
+                    "next_actions": "Transmettre décompte + facture; retour sous 5 jours ouvrés"
+                },
+                {
+                    "call_id": "CALL-002-010",
+                    "date": "2024-09-24",
+                    "time": "09:50",
+                    "duration": "9 minutes",
+                    "agent": "Nadia Pelletier",
+                    "summary": "Suivi dossier remboursement collectif. Une correction de paramétrage est en cours, un complément devrait être versé.",
+                    "decisions": [
+                        "Anomalie de paramétrage identifiée",
+                        "Correction en cours",
+                        "Complément de remboursement autorisé"
+                    ],
+                    "next_actions": "Attendre virement complémentaire; confirmation envoyée"
+                }
+            ]
         }
     ]
 
 def get_insurance_products() -> List[Dict[str, Any]]:
     """
-    Get MAAF/MAIF insurance product information
+    Get Groupama (demo) insurance product information
     """
     return [
         {
-            "company": "MAIF",
+            "company": "GROUPAMA",
             "product": "Auto",
-            "formulas": ["Tiers Initiale", "Tiers Essentiel", "Tous Risques Différence", "Tous Risques Plénitude"],
+            "formulas": ["Tiers", "Tous Risques"],
             "features": ["Responsabilité civile", "Assistance", "Protection corporelle", "Défense juridique"]
         },
         {
-            "company": "MAAF", 
+            "company": "GROUPAMA", 
             "product": "Auto",
-            "formulas": ["Tiers Eco", "Tiers Essentiel", "Tiers Essentiel+", "Tous Risques Eco", "Tous Risques Confort", "Tous Risques Confort+"],
+            "formulas": ["Tiers", "Tous Risques"],
             "features": ["Responsabilité civile illimitée", "Assistance 24/7", "Véhicule de remplacement", "Options mobilité"]
         },
         {
-            "company": "MAIF",
+            "company": "GROUPAMA",
             "product": "Habitation",
-            "formulas": ["Initiale", "Essentiel", "Différence"],
+            "formulas": ["Essentiel", "Confort"],
             "features": ["Multirisque", "Protection des enfants scolarisés", "Assistance 24/7", "Renseignements juridiques"]
         },
         {
-            "company": "MAAF",
+            "company": "GROUPAMA",
             "product": "Habitation",
-            "formulas": ["Tempo Initiale", "Tempo Classique", "Tempo Intégrale"],
+            "formulas": ["Essentiel", "Confort"],
             "features": ["Protection étendue", "Assistance dépannage", "Défense juridique", "Services après sinistre"]
         }
     ]
