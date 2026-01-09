@@ -96,13 +96,13 @@ _grounding_tool_schema = {
 _policy_tool_schema = {
     "type": "function",
     "name": "get_policies",
-    "description": "Retrieve insurance policy information for MAAF and MAIF customers. Each policy includes holder details, coverage type, premiums, vehicle/property information, and status. Supports flexible name search by full name, first name, or last name.",
+    "description": "Retrieve insurance policy information for Groupama demo customers. Each policy includes holder details, coverage type, premiums, vehicle/property information, and status. Supports flexible name search by full name, first name, or last name.",
     "parameters": {
         "type": "object",
         "properties": {
             "policy_number": {
                 "type": "string",
-                "description": "Policy number (e.g., MAIF-AUTO-001, MAAF-HAB-002)"
+                "description": "Policy number (e.g., GROUPAMA-AUTO-001, GROUPAMA-HAB-002)"
             },
             "name": {
                 "type": "string",
@@ -129,7 +129,7 @@ _policy_tool_schema = {
 _claims_tool_schema = {
     "type": "function",
     "name": "get_claims",
-    "description": "Retrieve insurance claim information for MAAF and MAIF policies. Each claim includes claim number, policy details, type, amounts, status, and processing information. Supports flexible name search by full name, first name, or last name.",
+    "description": "Retrieve insurance claim information for Groupama demo policies. Each claim includes claim number, policy details, type, amounts, status, and processing information. Supports flexible name search by full name, first name, or last name.",
     "parameters": {
         "type": "object",
         "properties": {
@@ -139,7 +139,7 @@ _claims_tool_schema = {
             },
             "policy_number": {
                 "type": "string",
-                "description": "Associated policy number (e.g., MAIF-AUTO-001)"
+                "description": "Associated policy number (e.g., GROUPAMA-AUTO-001)"
             },
             "holder_name": {
                 "type": "string",
@@ -166,7 +166,7 @@ _claims_tool_schema = {
 _real_policy_tool_schema = {
     "type": "function",
     "name": "get_real_policies",
-    "description": "Retrieve comprehensive real-time policy information from the MAAF/MAIF system database, including detailed coverage limits, payment history, and current status. Supports flexible name search.",
+    "description": "Retrieve comprehensive real-time policy information from the Groupama demo system database, including detailed coverage limits, payment history, and current status. Supports flexible name search.",
     "parameters": {
         "type": "object",
         "properties": {
@@ -199,7 +199,7 @@ _real_policy_tool_schema = {
 _agency_tool_schema = {
     "type": "function",
     "name": "get_agencies",
-    "description": "Retrieve MAAF and MAIF agency information including contact details, locations, and agent information for customer service.",
+    "description": "Retrieve Groupama agency information including contact details, locations, and agent information for customer service.",
     "parameters": {
         "type": "object",
         "properties": {
@@ -220,7 +220,7 @@ _agency_tool_schema = {
 _contact_tool_schema = {
     "type": "function",
     "name": "get_contact_info",
-    "description": "Retrieve MAAF and MAIF contact information including phone numbers for customer service, claims, emergencies, and specific departments.",
+    "description": "Retrieve Groupama contact information including phone numbers for customer service, claims, emergencies, and specific departments.",
     "parameters": {
         "type": "object",
         "properties": {
@@ -230,7 +230,7 @@ _contact_tool_schema = {
             },
             "company": {
                 "type": "string",
-                "description": "Insurance company (MAAF or MAIF)"
+                "description": "Insurance company (e.g., Groupama)"
             }
         },
         "required": [],
@@ -828,7 +828,7 @@ async def _real_policy_tool(args: Any) -> ToolResult:
         raise e
 
 async def _agency_tool(args: Any) -> ToolResult:
-    """Retrieve MAAF and MAIF agency information"""
+    """Retrieve Groupama agency information"""
     if not AZURE_API_ENDPOINT:
         error_msg = "Insurance API is not available. AZURE_API_ENDPOINT environment variable is not configured."
         logger.error(error_msg)
@@ -865,7 +865,7 @@ async def _agency_tool(args: Any) -> ToolResult:
         raise e
 
 async def _contact_tool(args: Any) -> ToolResult:
-    """Retrieve MAAF and MAIF contact information"""
+    """Retrieve Groupama contact information"""
     if not AZURE_API_ENDPOINT:
         error_msg = "Insurance API is not available. AZURE_API_ENDPOINT environment variable is not configured."
         logger.error(error_msg)
