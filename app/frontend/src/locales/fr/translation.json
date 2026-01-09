@@ -1,13 +1,13 @@
 {
     "app": {
         "title": "Parlez à votre agent d'assurance",
-        "footer": "Construit avec Azure AI Search + GPT Realtime dans Azure AI Foundry",
+        "footer": "Construit avec Azure AI Search + GPT Realtime dans Microsoft Foundry",
         "stopRecording": "Arrêter la conversation",
         "startRecording": "Démarrer la conversation",
         "stopConversation": "Arrêter la conversation"
     },
     "status": {
-        "notRecordingMessage": "Posez toute question sur vos polices d'assurance MAIF ou MAAF, ou demandez de l'assistance",
+        "notRecordingMessage": "Posez une question sur vos contrats Groupama (MRH/habitation, responsabilité civile, sinistres, assistance) ou demandez une action (contrats, sinistres, agence, contact).\n\nExemples :\n• Je suis Jérôme Parel : mon remboursement de groupe est incomplet, que faire ?\n• Que couvre l’assurance habitation MRH (dégât des eaux, vol, bris de glace, vandalisme) ?\n• J’ai eu un dégât des eaux : quels sont les premiers gestes et quels justificatifs conserver ?\n• Quels sont les délais pour déclarer un vol ou un vandalisme ?\n• Peux-tu retrouver mes contrats et mes sinistres (statut, montant, date) ?\n• Comment contacter l’assistance 24/7 ou trouver mon agence la plus proche ?",
         "conversationInProgress": "Conversation en cours"
     },
     "history": {

@@ -1,13 +1,13 @@
 {
     "app": {
         "title": "保険エージェントとお話しください",
-        "footer": "Azure AI Search + GPT Realtime in Azure AI Foundryで構築",
+        "footer": "Azure AI Search + GPT Realtime in Microsoft Foundryで構築",
         "stopRecording": "会話を停止",
         "startRecording": "会話を開始",
         "stopConversation": "会話を停止"
     },
     "status": {
-        "notRecordingMessage": "MAIFまたはMAAFの保険契約について何でもお聞きください。サポートをリクエストすることもできます",
+        "notRecordingMessage": "Groupamaの保険（MRH/住宅、賠償責任、事故・請求、アシスタンス）について何でもお聞きください。契約/事故状況の確認、連絡先や最寄り代理店の案内もできます。\n\n例:\n• ジェローム・パレルです。団体の払い戻しが不足しています。どうすればいいですか？\n• MRH（住宅保険）は何を補償しますか？（水漏れ・盗難・ガラス破損・破壊行為など）\n• 水漏れが起きました。最初にやることと、必要な証拠は？\n• 盗難や破壊行為の申告期限は？\n• 私の契約と事故（請求）の状況を確認してください\n• 24/7アシスタンスへの連絡方法、または最寄り代理店は？",
         "conversationInProgress": "会話中"
     },
     "history": {

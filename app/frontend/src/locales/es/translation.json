@@ -1,13 +1,13 @@
 {
     "app": {
-        "title": "Habla con tu agente de seguros",
-        "footer": "Construido con Azure AI Search + GPT Realtime en Azure AI Foundry",
+        "notRecordingMessage": "Pregunta cualquier cosa sobre tu seguro Groupama (MRH/hogar, responsabilidad civil, siniestros, asistencia) o solicita una acción (pólizas, siniestros, agencia, contacto).\n\nEjemplos:\n• Soy Jérôme Parel: mi reembolso de grupo parece incompleto. ¿Qué debo hacer?\n• ¿Qué cubre el seguro de hogar MRH (daños por agua, robo, rotura de cristales, vandalismo)?\n• Tuve una fuga de agua: ¿qué pasos debo seguir y qué pruebas debo conservar?\n• ¿Cuáles son los plazos para declarar un robo o vandalismo?\n• ¿Puedes recuperar mis pólizas y el estado de mis siniestros?\n• ¿Cómo contacto con la asistencia 24/7 o encuentro mi agencia más cercana?",
+        "footer": "Construido con Azure AI Search + GPT Realtime en Microsoft Foundry",
         "stopRecording": "Detener conversación",
         "startRecording": "Iniciar conversación",
         "stopConversation": "Detener conversación"
     },
     "status": {
-        "notRecordingMessage": "Pregunta cualquier cosa sobre tus pólizas de seguro MAIF o MAAF, o solicita asistencia",
+        "notRecordingMessage": "Pregunta cualquier cosa sobre tu seguro Groupama (MRH/hogar, responsabilidad civil, siniestros, asistencia) o solicita una acción (pólizas, siniestros, agencia, contacto).\n\nEjemplos:\n• Soy Jérôme Parel: mi reembolso de grupo parece incompleto. ¿Qué debo hacer?\n• ¿Qué cubre el seguro de hogar MRH (daños por agua, robo, rotura de cristales, vandalismo)?\n• Tuve una fuga de agua: ¿qué pasos debo seguir y qué pruebas debo conservar?\n• ¿Cuáles son los plazos para declarar un robo o vandalismo?\n• ¿Puedes recuperar mis pólizas y el estado de mis siniestros?\n• ¿Cómo contacto con la asistencia 24/7 o encuentro mi agencia más cercana?",
         "conversationInProgress": "Conversación en progreso"
     },
     "history": {

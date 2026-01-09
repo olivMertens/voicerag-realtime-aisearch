@@ -55,6 +55,8 @@ const FRENCH_NAMES = [
     "fabrice",
     "gérard",
     "henri",
+    "jerome",
+    "jérôme",
     "julien",
     "laurent",
     "marc",
