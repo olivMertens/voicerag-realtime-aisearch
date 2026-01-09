@@ -87,8 +87,81 @@
     },
     "help": {
         "open": "Ayuda y ejemplos",
-        "title": "Ayuda y ejemplos",
-        "subtitle": "Copia y pega un ejemplo, o escribe tu propia pregunta.",
+        "title": "Guía de uso - Asistente IA Groupama",
+        "subtitle": "Explora tipos de preguntas, APIs y funcionalidades. Copia y pega un ejemplo para probar.",
+        "nav": {
+            "overview": "Resumen",
+            "questionTypes": "Tipos de preguntas",
+            "apis": "APIs disponibles",
+            "features": "Funcionalidades"
+        },
+        "overview": {
+            "title": "Resumen",
+            "subtitle": "Cómo usar el asistente de voz + RAG en esta demo.",
+            "howToTitle": "Cómo empezar",
+            "bullets": [
+                "Aporta contexto: empieza con “Soy <nombre>” para usar los datos de demo.",
+                "Haz preguntas cortas y específicas (póliza, siniestro, asistencia, agencia…).",
+                "Cuando esté disponible, revisa las Fuentes/grounding para verificar la respuesta.",
+                "Usa la pestaña Tipos de preguntas para copiar y pegar ejemplos."
+            ]
+        },
+        "questions": {
+            "title": "Preguntas que puedes hacer",
+            "subtitle": "Ejemplos basados en los datos de demo (pulsa el icono para copiar).",
+            "groups": [
+                {
+                    "title": "Información personal · Pólizas",
+                    "items": [
+                        "Soy Jérôme Pareille: ¿cómo funciona mi cobertura de salud colectiva (dental, hospitalización, óptica)?",
+                        "¿Puedes recuperar mis pólizas (tipo, coberturas, fechas)?",
+                        "Soy Anne Lefebvre: una pregunta sobre responsabilidad civil profesional. ¿Estoy cubierta?",
+                        "Soy Pierre Leroy: quiero un rescate parcial de mi seguro de vida. ¿Documentos, plazos, fiscalidad?"
+                    ]
+                },
+                {
+                    "title": "Siniestros · Declaración y seguimiento",
+                    "items": [
+                        "Soy Jean Dupont: tuve un choque con el coche. ¿Cuál es el estado de mi siniestro (peritaje, responsabilidad)?",
+                        "Soy Marie Martin: tuve un daño por agua en casa. ¿Qué pasos debo seguir y qué documentos debo conservar?",
+                        "Soy Julien Moreau: me robaron la moto. ¿Qué plazos aplican y qué documentos necesitas?",
+                        "Soy Catherine Leroy: rotura de cristales (parabrisas). ¿Está cubierto y cómo reservo la reparación?",
+                        "Soy Michel Rousseau: daños por tormenta en el tejado. ¿Cómo lo declaro y qué pruebas debo enviar?"
+                    ]
+                },
+                {
+                    "title": "Asistencia · Agencias y contacto",
+                    "items": [
+                        "¿Cómo contacto con la asistencia 24/7 o encuentro mi agencia más cercana?",
+                        "Soy Sophie Dubois: reembolso de óptica. ¿Qué documentos faltan y cuál es el plazo de tramitación?"
+                    ]
+                }
+            ]
+        },
+        "apis": {
+            "title": "APIs disponibles",
+            "subtitle": "Herramientas que el asistente puede llamar para buscar y recuperar información.",
+            "none": "No hay APIs listadas.",
+            "items": [
+                { "name": "search", "description": "Busca en la base de conocimiento (obligatorio antes de respuestas de seguros)." },
+                { "name": "report_grounding", "description": "Muestra fuentes usadas + nivel de confianza (para la UI)." },
+                { "name": "get_policies", "description": "Recupera pólizas/contratos de la demo." },
+                { "name": "get_claims", "description": "Recupera siniestros declarados (estado, importes, fechas…)." },
+                { "name": "get_agencies", "description": "Encuentra agencias cercanas." },
+                { "name": "get_contact_info", "description": "Obtiene información de contacto de Groupama." }
+            ]
+        },
+        "features": {
+            "title": "Funcionalidades",
+            "subtitle": "Lo que muestra esta demo (UX + IA).",
+            "items": [
+                "Conversación por voz en tiempo real (STT + respuesta de audio).",
+                "RAG: busca en una base de conocimiento para respuestas fundamentadas.",
+                "Copia rápida de ejemplos de preguntas.",
+                "Transcripciones y telemetría para entender llamadas de herramientas.",
+                "Despliegue cloud-native en Azure (Container Apps + azd)."
+            ]
+        },
         "examplesTitle": "Preguntas de ejemplo (copiar/pegar)",
         "copy": "Copiar",
         "copied": "Copiado",

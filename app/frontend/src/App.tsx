@@ -385,12 +385,8 @@ function AppContent() {
             {/* Floating background elements */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div className="floating-element pointer-events-none absolute left-10 top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl"></div>
-                <div
-                    className="floating-element pointer-events-none absolute right-16 top-40 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl [animation-delay:2s]"
-                ></div>
-                <div
-                    className="floating-element pointer-events-none absolute bottom-20 left-1/3 h-80 w-80 rounded-full bg-purple-400/10 blur-3xl [animation-delay:4s]"
-                ></div>
+                <div className="floating-element pointer-events-none absolute right-16 top-40 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl [animation-delay:2s]"></div>
+                <div className="floating-element pointer-events-none absolute bottom-20 left-1/3 h-80 w-80 rounded-full bg-purple-400/10 blur-3xl [animation-delay:4s]"></div>
             </div>
 
             <HelpDialog open={isHelpOpen} onOpenChange={setIsHelpOpen} />

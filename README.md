@@ -21,16 +21,26 @@ This repository contains an enhanced **hybrid implementation** of RAG (Retrieval
 
 This demo is customized as an **insurance customer assistant for Groupama**. The assistant provides comprehensive support for policy inquiries, claims processing, agency information, and contact details through both **natural voice interface** and **text input with audio responses**.
 
+## Latest updates (UI + UX)
+
+* **Guide-style Help modal**: A left navigation + right content layout (Overview / Question types / APIs / Features).
+* **One-click copy prompts**: Copy example questions directly from the Help modal.
+* **Improved modal behavior**: Scrollable content with sticky header/footer, plus ESC and overlay-click to close.
+* **i18n consistency**: Help/Telemetry/Transcript/Tech UI strings are unified across locales (EN/FR/ES/DE/JA).
+* **Theme readability**: Help modal styling is readable across all available themes (`glass`, `white`, `black`).
+
 **Key Data Sources:**
-- **API Data**: Policy and claims information (see `app/api/data/load_data.py`)
-- **Knowledge Base**: French FAQ data embedded in Azure AI Search (see `data/faq.json`)
-- **Real-time APIs**: Multiple endpoints for policies, claims, agencies, and contact information
+
+* **API Data**: Policy and claims information (see `app/api/data/load_data.py`)
+* **Knowledge Base**: French FAQ data embedded in Azure AI Search (see `data/faq.json`)
+* **Real-time APIs**: Multiple endpoints for policies, claims, agencies, and contact information
 
 **Core Components:**
-- **Backend**: Voice processing and AI orchestration (`app/backend/app.py`)
-- **API Service**: RESTful endpoints for insurance data (`app/api/main.py`) 
-- **RAG Tools**: Integration with Azure AI Search and custom tools (`app/backend/ragtools.py`)
-- **Telemetry**: Performance monitoring and usage analytics (`app/backend/telemetry.py`)
+
+* **Backend**: Voice processing and AI orchestration (`app/backend/app.py`)
+* **API Service**: RESTful endpoints for insurance data (`app/api/main.py`)
+* **RAG Tools**: Integration with Azure AI Search and custom tools (`app/backend/ragtools.py`)
+* **Telemetry**: Performance monitoring and usage analytics (`app/backend/telemetry.py`)
 
 ## Features
 
@@ -48,6 +58,8 @@ This demo is customized as an **insurance customer assistant for Groupama**. The
   - Real-time contact information
   - Customer service support with conversation context
 * **🌍 Multi-language Support**: French content with multilingual interface (English, French, German, Spanish, Japanese)
+* **🧭 Built-in user guide**: Help modal with grouped question examples, available APIs, and demo overview
+* **🎨 Themes**: Switch between `glass`, `white`, and `black` themes (saved in localStorage)
 * **📊 Telemetry & Monitoring**: Real-time performance tracking and usage analytics
 * **⚙️ Configuration Verification**: Built-in tools to validate Azure OpenAI setup
 

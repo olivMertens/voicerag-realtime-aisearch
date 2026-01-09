@@ -86,8 +86,81 @@
     },
     "help": {
         "open": "Aide & exemples",
-        "title": "Aide & exemples",
-        "subtitle": "Copiez-collez un exemple, ou posez votre propre question.",
+        "title": "Guide d'utilisation - Assistant IA Groupama",
+        "subtitle": "Explorez les questions types, les APIs et les fonctionnalités. Copiez-collez un exemple pour tester.",
+        "nav": {
+            "overview": "Vue d'ensemble",
+            "questionTypes": "Questions types",
+            "apis": "APIs disponibles",
+            "features": "Fonctionnalités"
+        },
+        "overview": {
+            "title": "Vue d'ensemble",
+            "subtitle": "Comment utiliser l'assistant vocal + RAG dans cette démo.",
+            "howToTitle": "Bien démarrer",
+            "bullets": [
+                "Donnez du contexte : commencez par “Je suis <nom>” pour utiliser les données de démo.",
+                "Posez une question courte et précise (contrat, sinistre, assistance, agence…).",
+                "Si vous voulez vérifier, ouvrez la section Sources/grounding (quand disponible).",
+                "Vous pouvez copier-coller des exemples dans l'onglet Questions types."
+            ]
+        },
+        "questions": {
+            "title": "Questions que vous pouvez poser",
+            "subtitle": "Exemples basés sur les données de démo (clic sur l'icône pour copier).",
+            "groups": [
+                {
+                    "title": "Informations personnelles · Contrats",
+                    "items": [
+                        "Je suis Jérôme Pareille : comment fonctionne ma couverture santé collective (dentaire, hospitalisation, optique) ?",
+                        "Peux-tu retrouver mes contrats (type, garanties, dates) ?",
+                        "Je suis Anne Lefebvre : question sur ma RC professionnelle (incident mineur). Suis-je couverte ?",
+                        "Je suis Pierre Leroy : je veux faire un rachat partiel sur mon assurance vie. Documents, fiscalité, délais ?"
+                    ]
+                },
+                {
+                    "title": "Sinistres · Déclaration & suivi",
+                    "items": [
+                        "Je suis Jean Dupont : j’ai eu une collision auto. Où en est mon dossier (expertise, responsabilités) ?",
+                        "Je suis Marie Martin : dégât des eaux dans la salle de bain. Quelles étapes et quels justificatifs fournir ?",
+                        "Je suis Julien Moreau : on m’a volé ma moto. Quels délais et quels documents (plainte, factures) ?",
+                        "Je suis Catherine Leroy : bris de glace (pare-brise fissuré). Est-ce couvert et comment prendre rendez-vous ?",
+                        "Je suis Michel Rousseau : tempête, tuiles arrachées. Comment déclarer et quelles preuves/devis envoyer ?"
+                    ]
+                },
+                {
+                    "title": "Assistance · Agences & contact",
+                    "items": [
+                        "Comment contacter l’assistance 24/7 ou trouver mon agence la plus proche ?",
+                        "Je suis Sophie Dubois : remboursement optique. Quels justificatifs manquent et quel délai de traitement ?"
+                    ]
+                }
+            ]
+        },
+        "apis": {
+            "title": "APIs disponibles",
+            "subtitle": "Outils appelés automatiquement par l'assistant pour rechercher et récupérer des informations.",
+            "none": "Aucune API listée.",
+            "items": [
+                { "name": "search", "description": "Recherche dans la base de connaissances (obligatoire avant toute réponse assurance)." },
+                { "name": "report_grounding", "description": "Affiche les sources utilisées + niveau de confiance (pour l'UI)." },
+                { "name": "get_policies", "description": "Récupère les contrats/polices d'assurance de la démo." },
+                { "name": "get_claims", "description": "Récupère les sinistres déclarés (statut, montants, dates…)." },
+                { "name": "get_agencies", "description": "Trouve des agences à proximité." },
+                { "name": "get_contact_info", "description": "Récupère les informations de contact Groupama." }
+            ]
+        },
+        "features": {
+            "title": "Fonctionnalités",
+            "subtitle": "Ce que la démo montre côté UX et IA.",
+            "items": [
+                "Conversation vocale en temps réel (speech-to-text + réponse audio).",
+                "RAG : recherche dans une base de connaissance pour des réponses ancrées (grounded).",
+                "Copie rapide des exemples de questions.",
+                "Transcriptions et télémétrie pour comprendre les appels d'outils.",
+                "Déploiement cloud-native sur Azure (Container Apps + azd)."
+            ]
+        },
         "examplesTitle": "Exemples de questions (copier-coller)",
         "copy": "Copier",
         "copied": "Copié",

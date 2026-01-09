@@ -87,8 +87,81 @@
     },
     "help": {
         "open": "Help & examples",
-        "title": "Help & examples",
-        "subtitle": "Copy/paste an example question, or ask your own.",
+        "title": "User guide - Groupama AI assistant",
+        "subtitle": "Browse question types, APIs, and features. Copy/paste an example to try it.",
+        "nav": {
+            "overview": "Overview",
+            "questionTypes": "Question types",
+            "apis": "Available APIs",
+            "features": "Features"
+        },
+        "overview": {
+            "title": "Overview",
+            "subtitle": "How to use the voice + RAG assistant in this demo.",
+            "howToTitle": "Getting started",
+            "bullets": [
+                "Provide context: start with “I’m <name>” to use the demo dataset.",
+                "Ask short, specific questions (policy, claim, assistance, agency…).",
+                "When available, check Sources/grounding to verify what was used.",
+                "Use the Question types tab to copy/paste ready-to-try prompts."
+            ]
+        },
+        "questions": {
+            "title": "Questions you can ask",
+            "subtitle": "Examples based on the demo data (click the icon to copy).",
+            "groups": [
+                {
+                    "title": "Personal info · Policies",
+                    "items": [
+                        "I’m Jérôme Pareille — how does my group health coverage work (dental, hospitalization, optical)?",
+                        "Can you pull up my policies (type, coverage, dates)?",
+                        "I’m Anne Lefebvre — a question about professional liability coverage. Am I covered?",
+                        "I’m Pierre Leroy — I want a partial withdrawal from my life insurance. Documents, timeline, tax impact?"
+                    ]
+                },
+                {
+                    "title": "Claims · Filing & status",
+                    "items": [
+                        "I’m Jean Dupont — I had a car collision. What’s the status of my claim (assessment, liability)?",
+                        "I’m Marie Martin — I had a water leak at home. What are the first steps and what documents should I keep?",
+                        "I’m Julien Moreau — my motorcycle was stolen. What deadlines apply and what documents do you need?",
+                        "I’m Catherine Leroy — windshield damage (glass breakage). Is it covered and how do I book a repair?",
+                        "I’m Michel Rousseau — storm damage to my roof. How do I declare it and what evidence should I provide?"
+                    ]
+                },
+                {
+                    "title": "Assistance · Agencies & contact",
+                    "items": [
+                        "How do I contact 24/7 assistance or my nearest agency?",
+                        "I’m Sophie Dubois — optical reimbursement. Which documents are missing and what’s the processing time?"
+                    ]
+                }
+            ]
+        },
+        "apis": {
+            "title": "Available APIs",
+            "subtitle": "Tools the assistant can call to search and retrieve information.",
+            "none": "No APIs listed.",
+            "items": [
+                { "name": "search", "description": "Search the knowledge base (mandatory before insurance answers)." },
+                { "name": "report_grounding", "description": "Expose sources used + confidence level (for the UI)." },
+                { "name": "get_policies", "description": "Fetch demo insurance policies." },
+                { "name": "get_claims", "description": "Fetch declared claims (status, amounts, dates…)." },
+                { "name": "get_agencies", "description": "Find nearby agencies." },
+                { "name": "get_contact_info", "description": "Get Groupama contact information." }
+            ]
+        },
+        "features": {
+            "title": "Features",
+            "subtitle": "What this demo showcases (UX + AI).",
+            "items": [
+                "Real-time voice conversation (speech-to-text + audio response).",
+                "RAG: searches a knowledge base for grounded answers.",
+                "One-click copy for example prompts.",
+                "Transcripts and telemetry to understand tool calls.",
+                "Cloud-native deployment on Azure (Container Apps + azd)."
+            ]
+        },
         "examplesTitle": "Example questions (copy/paste)",
         "examples": [
             "I’m Jérôme Pareille — how does my group health coverage work (dental, hospitalization, optical)?",

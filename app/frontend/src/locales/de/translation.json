@@ -87,8 +87,81 @@
     },
     "help": {
         "open": "Hilfe & Beispiele",
-        "title": "Hilfe & Beispiele",
-        "subtitle": "Kopieren Sie ein Beispiel oder stellen Sie Ihre eigene Frage.",
+        "title": "Benutzerhandbuch – KI-Assistent Groupama",
+        "subtitle": "Fragetypen, APIs und Funktionen entdecken. Ein Beispiel kopieren und ausprobieren.",
+        "nav": {
+            "overview": "Übersicht",
+            "questionTypes": "Fragetypen",
+            "apis": "Verfügbare APIs",
+            "features": "Funktionen"
+        },
+        "overview": {
+            "title": "Übersicht",
+            "subtitle": "So nutzen Sie den Sprach- + RAG-Assistenten in dieser Demo.",
+            "howToTitle": "Erste Schritte",
+            "bullets": [
+                "Kontext geben: Beginnen Sie mit „Ich bin <Name>“, um den Demo-Datensatz zu verwenden.",
+                "Kurze, konkrete Fragen stellen (Police, Schaden, Assistance, Agentur …).",
+                "Wenn verfügbar: Quellen/Grounding prüfen, um die Antwort nachzuvollziehen.",
+                "Im Tab „Fragetypen“ finden Sie Copy/Paste-Beispiele."
+            ]
+        },
+        "questions": {
+            "title": "Fragen, die Sie stellen können",
+            "subtitle": "Beispiele basierend auf Demo-Daten (Symbol klicken zum Kopieren).",
+            "groups": [
+                {
+                    "title": "Persönliche Infos · Policen",
+                    "items": [
+                        "Ich bin Jérôme Pareille – wie funktioniert meine Gruppen-Krankenversicherung (Zahn, Krankenhaus, Optik)?",
+                        "Können Sie meine Policen abrufen (Typ, Deckung, Daten)?",
+                        "Ich bin Anne Lefebvre – Frage zur Berufshaftpflicht. Bin ich gedeckt?",
+                        "Ich bin Pierre Leroy – ich möchte eine Teilentnahme aus der Lebensversicherung. Unterlagen, Dauer, Steuern?"
+                    ]
+                },
+                {
+                    "title": "Schäden · Meldung & Status",
+                    "items": [
+                        "Ich bin Jean Dupont – ich hatte einen Autounfall. Wie ist der Status meines Schadens (Gutachten, Haftung)?",
+                        "Ich bin Marie Martin – Wasserschaden zu Hause. Welche Schritte und Unterlagen sind nötig?",
+                        "Ich bin Julien Moreau – mein Motorrad wurde gestohlen. Welche Fristen gelten und welche Unterlagen brauchen Sie?",
+                        "Ich bin Catherine Leroy – Glasbruch (Frontscheibe). Ist das gedeckt und wie buche ich eine Reparatur?",
+                        "Ich bin Michel Rousseau – Sturmschaden am Dach. Wie melde ich das und welche Nachweise soll ich senden?"
+                    ]
+                },
+                {
+                    "title": "Assistance · Agenturen & Kontakt",
+                    "items": [
+                        "Wie erreiche ich die 24/7-Assistance oder die nächste Agentur?",
+                        "Ich bin Sophie Dubois – Erstattung für Optik. Welche Belege fehlen und wie lange dauert die Bearbeitung?"
+                    ]
+                }
+            ]
+        },
+        "apis": {
+            "title": "Verfügbare APIs",
+            "subtitle": "Tools, die der Assistent zur Suche und zum Abruf von Informationen verwenden kann.",
+            "none": "Keine APIs aufgelistet.",
+            "items": [
+                { "name": "search", "description": "Suche in der Wissensdatenbank (vor Versicherungsantworten obligatorisch)." },
+                { "name": "report_grounding", "description": "Zeigt verwendete Quellen + Vertrauensniveau (für die UI)." },
+                { "name": "get_policies", "description": "Ruft Demo-Policen/Verträge ab." },
+                { "name": "get_claims", "description": "Ruft gemeldete Schäden ab (Status, Beträge, Daten …)." },
+                { "name": "get_agencies", "description": "Findet nahegelegene Agenturen." },
+                { "name": "get_contact_info", "description": "Ruft Groupama-Kontaktinformationen ab." }
+            ]
+        },
+        "features": {
+            "title": "Funktionen",
+            "subtitle": "Was diese Demo zeigt (UX + KI).",
+            "items": [
+                "Echtzeit-Sprachdialog (STT + Audioantwort).",
+                "RAG: Suche in einer Wissensdatenbank für fundierte Antworten.",
+                "Ein-Klick-Kopie für Beispiel-Prompts.",
+                "Transkripte und Telemetrie zur Nachvollziehbarkeit von Tool-Aufrufen.",
+                "Cloud-native Deployment auf Azure (Container Apps + azd)."
+            ]
+        },
         "examplesTitle": "Beispielfragen (Copy/Paste)",
         "copy": "Kopieren",
         "copied": "Kopiert",

@@ -165,7 +165,9 @@ export function TelemetryPanel({ isVisible, onToggle }: { isVisible: boolean; on
                                     <div className="glass-dark rounded-lg p-3">
                                         <div className="text-xs text-white/60">{t("telemetry.statsToolCalls")}</div>
                                         <div className="text-lg font-semibold">{telemetryData.stats.total_tool_calls}</div>
-                                        <div className="text-xs text-white/40">{telemetryData.tool_calls.length > 0 ? t("telemetry.active") : t("telemetry.none")}</div>
+                                        <div className="text-xs text-white/40">
+                                            {telemetryData.tool_calls.length > 0 ? t("telemetry.active") : t("telemetry.none")}
+                                        </div>
                                     </div>
                                     <div className="glass-dark rounded-lg p-3">
                                         <div className="text-xs text-white/60">{t("telemetry.statsSearches")}</div>
