@@ -1,4 +1,17 @@
-./scripts/load_python_env.ps1
+if (-not (Test-Path -Path "./app/backend/.env")) {
+    Write-Host ""
+    Write-Host "No app/backend/.env found." -ForegroundColor Yellow
+    if (Get-Command azd -ErrorAction SilentlyContinue) {
+        Write-Host "Attempting to generate it via azd (scripts/write_env.ps1)..." -ForegroundColor Yellow
+        try {
+            ./scripts/write_env.ps1
+        } catch {
+            Write-Host "Failed to generate .env via azd. You may need to run 'azd auth login' and 'azd env select'." -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "azd not found. Create app/backend/.env (or run scripts/write_env.ps1 after installing azd)." -ForegroundColor Yellow
+    }
+}
 
 Write-Host ""
 Write-Host "Restoring frontend npm packages"

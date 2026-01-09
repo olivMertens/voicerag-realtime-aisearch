@@ -5,19 +5,31 @@ $envFilePath = "app\backend\.env"
 Set-Content -Path $envFilePath -Value ""
 
 # Append new values to the .env file
-$azureOpenAiEndpoint = azd env get-value AZURE_OPENAI_ENDPOINT
-$azureOpenAiRealtimeDeployment = azd env get-value AZURE_OPENAI_REALTIME_DEPLOYMENT
-$azureOpenAiRealtimeVoiceChoice = azd env get-value AZURE_OPENAI_REALTIME_VOICE_CHOICE
-$azureSearchEndpoint = azd env get-value AZURE_SEARCH_ENDPOINT
-$azureSearchIndex = azd env get-value AZURE_SEARCH_INDEX
-$azureTenantId = azd env get-value AZURE_TENANT_ID
-$azureSearchSemanticConfiguration = azd env get-value AZURE_SEARCH_SEMANTIC_CONFIGURATION
-$azureSearchIdentifierField = azd env get-value AZURE_SEARCH_IDENTIFIER_FIELD
-$azureSearchTitleField = azd env get-value AZURE_SEARCH_TITLE_FIELD
-$azureSearchContentField = azd env get-value AZURE_SEARCH_CONTENT_FIELD
-$azureSearchEmbeddingField = azd env get-value AZURE_SEARCH_EMBEDDING_FIELD
-$azureSearchUseVectorQuery = azd env get-value AZURE_SEARCH_USE_VECTOR_QUERY
-$azureApiEndpoint = azd env get-value AZURE_API_ENDPOINT
+function Get-AzdEnvValue([string]$name) {
+	$value = azd env get-value $name 2>$null
+	if (-not $value) {
+		throw "Missing azd env value: $name"
+	}
+	$value = $value.Trim()
+	if ($value.StartsWith("ERROR:")) {
+		throw "azd env value not found: $name ($value)"
+	}
+	return $value
+}
+
+$azureOpenAiEndpoint = Get-AzdEnvValue "AZURE_OPENAI_ENDPOINT"
+$azureOpenAiRealtimeDeployment = Get-AzdEnvValue "AZURE_OPENAI_REALTIME_DEPLOYMENT"
+$azureOpenAiRealtimeVoiceChoice = Get-AzdEnvValue "AZURE_OPENAI_REALTIME_VOICE_CHOICE"
+$azureSearchEndpoint = Get-AzdEnvValue "AZURE_SEARCH_ENDPOINT"
+$azureSearchIndex = Get-AzdEnvValue "AZURE_SEARCH_INDEX"
+$azureTenantId = Get-AzdEnvValue "AZURE_TENANT_ID"
+$azureSearchSemanticConfiguration = Get-AzdEnvValue "AZURE_SEARCH_SEMANTIC_CONFIGURATION"
+$azureSearchIdentifierField = Get-AzdEnvValue "AZURE_SEARCH_IDENTIFIER_FIELD"
+$azureSearchTitleField = Get-AzdEnvValue "AZURE_SEARCH_TITLE_FIELD"
+$azureSearchContentField = Get-AzdEnvValue "AZURE_SEARCH_CONTENT_FIELD"
+$azureSearchEmbeddingField = Get-AzdEnvValue "AZURE_SEARCH_EMBEDDING_FIELD"
+$azureSearchUseVectorQuery = Get-AzdEnvValue "AZURE_SEARCH_USE_VECTOR_QUERY"
+$azureApiEndpoint = Get-AzdEnvValue "AZURE_API_ENDPOINT"
 
 Add-Content -Path $envFilePath -Value "AZURE_OPENAI_ENDPOINT=$azureOpenAiEndpoint"
 Add-Content -Path $envFilePath -Value "AZURE_OPENAI_REALTIME_DEPLOYMENT=$azureOpenAiRealtimeDeployment"

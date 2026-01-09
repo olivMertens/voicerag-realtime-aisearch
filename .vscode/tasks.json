@@ -4,12 +4,12 @@
         {
             "label": "Start app",
             "type": "shell",
-            "command": "pwsh ${workspaceFolder}/app/start.ps1",
+            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ${workspaceFolder}/scripts/start.ps1",
             "presentation": {
                 "reveal": "silent"
             },
             "options": {
-                "cwd": "${workspaceFolder}/app"
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": []
         }

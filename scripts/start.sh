@@ -1,6 +1,15 @@
 #!/bin/sh
 
-. ./scripts/load_python_env.sh
+if [ ! -f "./app/backend/.env" ]; then
+    echo ""
+    echo "No app/backend/.env found."
+    if command -v azd >/dev/null 2>&1; then
+        echo "Attempting to generate it via azd (scripts/write_env.sh)..."
+        ./scripts/write_env.sh || true
+    else
+        echo "azd not found. Create app/backend/.env (or run scripts/write_env.sh after installing azd)."
+    fi
+fi
 
 echo ""
 echo "Restoring frontend npm packages"
