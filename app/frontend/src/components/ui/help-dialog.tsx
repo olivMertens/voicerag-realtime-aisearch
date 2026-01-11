@@ -133,9 +133,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                                 onClick={() => setActiveSection(item.id)}
                                                 className={
                                                     "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors " +
-                                                    (isActive
-                                                        ? "bg-white/10 text-white"
-                                                        : "text-white/80 hover:bg-white/5 hover:text-white")
+                                                    (isActive ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/5 hover:text-white")
                                                 }
                                             >
                                                 <Icon className={"h-4 w-4 " + (isActive ? "text-white" : "text-white/60")} />
@@ -269,10 +267,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
 
                     <div className="glass-dark sticky bottom-0 z-10 border-t border-white/10 px-6 py-4 backdrop-blur">
                         <div className="flex justify-end">
-                            <Button
-                                onClick={() => onOpenChange(false)}
-                                className="rounded-xl bg-blue-600/80 px-4 py-2 text-white hover:bg-blue-700/80"
-                            >
+                            <Button onClick={() => onOpenChange(false)} className="rounded-xl bg-blue-600/80 px-4 py-2 text-white hover:bg-blue-700/80">
                                 {t("help.close")}
                             </Button>
                         </div>
