@@ -97,20 +97,20 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="glass-card w-[min(980px,94vw)] max-w-none p-0 text-white">
+            <DialogContent className="glass-card w-[min(980px,94vw)] max-w-none p-0 text-foreground">
                 <div className="flex max-h-[85vh] flex-col">
-                    <div className="glass-dark sticky top-0 z-10 border-b border-white/10 px-6 py-4 backdrop-blur">
+                    <div className="glass-dark sticky top-0 z-10 border-b border-border/50 px-6 py-4 backdrop-blur">
                         <div className="flex items-start justify-between gap-4">
                             <DialogHeader className="text-left">
-                                <DialogTitle className="flex items-center gap-2 text-xl text-white">
-                                    <HelpCircle className="h-5 w-5 text-white/80" />
+                                <DialogTitle className="flex items-center gap-2 text-xl text-foreground">
+                                    <HelpCircle className="h-5 w-5 text-muted-foreground" />
                                     {t("help.title")}
                                 </DialogTitle>
-                                <p className="text-sm text-white/70">{t("help.subtitle")}</p>
+                                <p className="text-sm text-muted-foreground">{t("help.subtitle")}</p>
                             </DialogHeader>
                             <Button
                                 onClick={() => onOpenChange(false)}
-                                className="glass-button rounded-full p-2 text-white hover:bg-white/10"
+                                className="glass-button rounded-full p-2 text-foreground hover:bg-foreground/10"
                                 aria-label={t("help.close")}
                                 title={t("help.close")}
                             >
@@ -121,7 +121,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
 
                     <div className="flex-1 overflow-hidden">
                         <div className="flex h-full">
-                            <aside className="w-64 shrink-0 border-r border-white/10 bg-white/5 p-3">
+                            <aside className="w-64 shrink-0 border-r border-border/50 bg-foreground/5 p-3">
                                 <nav className="space-y-1">
                                     {navItems.map(item => {
                                         const Icon = item.icon;
@@ -133,10 +133,12 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                                 onClick={() => setActiveSection(item.id)}
                                                 className={
                                                     "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors " +
-                                                    (isActive ? "bg-white/10 text-white" : "text-white/80 hover:bg-white/5 hover:text-white")
+                                                    (isActive
+                                                        ? "bg-foreground/10 text-foreground"
+                                                        : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground")
                                                 }
                                             >
-                                                <Icon className={"h-4 w-4 " + (isActive ? "text-white" : "text-white/60")} />
+                                                <Icon className={"h-4 w-4 " + (isActive ? "text-foreground" : "text-muted-foreground")} />
                                                 <span className="truncate">{item.label}</span>
                                             </button>
                                         );
@@ -148,25 +150,25 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                 {activeSection === "overview" && (
                                     <div className="space-y-5">
                                         <div className="space-y-1">
-                                            <h2 className="text-lg font-semibold text-white">{t("help.overview.title")}</h2>
-                                            <p className="text-sm text-white/70">{t("help.overview.subtitle")}</p>
+                                            <h2 className="text-lg font-semibold text-foreground">{t("help.overview.title")}</h2>
+                                            <p className="text-sm text-muted-foreground">{t("help.overview.subtitle")}</p>
                                         </div>
 
-                                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                            <h3 className="mb-2 text-sm font-semibold text-white/90">{t("help.overview.howToTitle")}</h3>
-                                            <ul className="space-y-1 text-sm text-white/80">
+                                        <div className="rounded-2xl border border-border/50 bg-foreground/5 p-4">
+                                            <h3 className="mb-2 text-sm font-semibold text-foreground">{t("help.overview.howToTitle")}</h3>
+                                            <ul className="space-y-1 text-sm text-foreground/90">
                                                 {overviewBullets.map((line, idx) => (
                                                     <li key={idx} className="flex gap-2">
-                                                        <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-white/40" />
+                                                        <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/50" />
                                                         <span className="leading-relaxed">{line}</span>
                                                     </li>
                                                 ))}
                                             </ul>
                                         </div>
 
-                                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                            <h3 className="mb-2 text-sm font-semibold text-white/90">{t("help.techTitle")}</h3>
-                                            <p className="whitespace-pre-line text-sm text-white/80">{t("help.techBody")}</p>
+                                        <div className="rounded-2xl border border-border/50 bg-foreground/5 p-4">
+                                            <h3 className="mb-2 text-sm font-semibold text-foreground">{t("help.techTitle")}</h3>
+                                            <p className="whitespace-pre-line text-sm text-foreground/90">{t("help.techBody")}</p>
                                         </div>
                                     </div>
                                 )}
@@ -174,16 +176,16 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                 {activeSection === "questions" && (
                                     <div className="space-y-5">
                                         <div className="space-y-1">
-                                            <h2 className="text-lg font-semibold text-white">{t("help.questions.title")}</h2>
-                                            <p className="text-sm text-white/70">{t("help.questions.subtitle")}</p>
+                                            <h2 className="text-lg font-semibold text-foreground">{t("help.questions.title")}</h2>
+                                            <p className="text-sm text-muted-foreground">{t("help.questions.subtitle")}</p>
                                         </div>
 
                                         {questionGroups.length > 0 ? (
                                             <div className="space-y-4">
                                                 {questionGroups.map((group, groupIndex) => (
-                                                    <section key={groupIndex} className="rounded-2xl border border-white/10 bg-white/5">
-                                                        <div className="border-b border-white/10 px-4 py-3">
-                                                            <h3 className="text-sm font-semibold text-white/90">{group.title}</h3>
+                                                    <section key={groupIndex} className="rounded-2xl border border-border/50 bg-foreground/5">
+                                                        <div className="border-b border-border/50 px-4 py-3">
+                                                            <h3 className="text-sm font-semibold text-foreground">{group.title}</h3>
                                                         </div>
                                                         <div className="space-y-2 p-3">
                                                             {group.items.map((question, questionIndex) => {
@@ -194,7 +196,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                                                         key={key}
                                                                         className="glass-dark flex items-center justify-between gap-3 rounded-xl px-3 py-2"
                                                                     >
-                                                                        <p className="text-sm leading-relaxed text-white/90">{question}</p>
+                                                                        <p className="text-sm leading-relaxed text-foreground">{question}</p>
                                                                         <Button
                                                                             type="button"
                                                                             variant="ghost"
@@ -203,7 +205,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                                                                 await copyToClipboard(question);
                                                                                 setCopiedKey(key);
                                                                             }}
-                                                                            className="h-9 w-9 shrink-0 rounded-xl text-white/90 hover:bg-white/10 hover:text-white"
+                                                                            className="h-9 w-9 shrink-0 rounded-xl text-foreground hover:bg-foreground/10 hover:text-foreground"
                                                                             aria-label={copied ? t("help.copied") : t("help.copy")}
                                                                             title={copied ? t("help.copied") : t("help.copy")}
                                                                         >
@@ -217,7 +219,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                                 ))}
                                             </div>
                                         ) : (
-                                            <p className="text-sm text-white/70">{t("help.noExamples")}</p>
+                                            <p className="text-sm text-muted-foreground">{t("help.noExamples")}</p>
                                         )}
                                     </div>
                                 )}
@@ -225,19 +227,19 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                 {activeSection === "apis" && (
                                     <div className="space-y-5">
                                         <div className="space-y-1">
-                                            <h2 className="text-lg font-semibold text-white">{t("help.apis.title")}</h2>
-                                            <p className="text-sm text-white/70">{t("help.apis.subtitle")}</p>
+                                            <h2 className="text-lg font-semibold text-foreground">{t("help.apis.title")}</h2>
+                                            <p className="text-sm text-muted-foreground">{t("help.apis.subtitle")}</p>
                                         </div>
 
                                         <div className="space-y-3">
                                             {apiItems.map((api, idx) => (
-                                                <div key={idx} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                                    <p className="font-mono text-sm text-white">{api.name}</p>
-                                                    <p className="mt-1 text-sm text-white/75">{api.description}</p>
+                                                <div key={idx} className="rounded-2xl border border-border/50 bg-foreground/5 p-4">
+                                                    <p className="font-mono text-sm text-foreground">{api.name}</p>
+                                                    <p className="mt-1 text-sm text-muted-foreground">{api.description}</p>
                                                 </div>
                                             ))}
 
-                                            {apiItems.length === 0 && <p className="text-sm text-white/70">{t("help.apis.none")}</p>}
+                                            {apiItems.length === 0 && <p className="text-sm text-muted-foreground">{t("help.apis.none")}</p>}
                                         </div>
                                     </div>
                                 )}
@@ -245,15 +247,15 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                                 {activeSection === "features" && (
                                     <div className="space-y-5">
                                         <div className="space-y-1">
-                                            <h2 className="text-lg font-semibold text-white">{t("help.features.title")}</h2>
-                                            <p className="text-sm text-white/70">{t("help.features.subtitle")}</p>
+                                            <h2 className="text-lg font-semibold text-foreground">{t("help.features.title")}</h2>
+                                            <p className="text-sm text-muted-foreground">{t("help.features.subtitle")}</p>
                                         </div>
 
-                                        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                            <ul className="space-y-2 text-sm text-white/85">
+                                        <div className="rounded-2xl border border-border/50 bg-foreground/5 p-4">
+                                            <ul className="space-y-2 text-sm text-foreground/90">
                                                 {featureItems.map((line, idx) => (
                                                     <li key={idx} className="flex gap-2">
-                                                        <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-white/40" />
+                                                        <span className="mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground/50" />
                                                         <span className="leading-relaxed">{line}</span>
                                                     </li>
                                                 ))}
@@ -265,7 +267,7 @@ export function HelpDialog({ open, onOpenChange }: HelpDialogProps) {
                         </div>
                     </div>
 
-                    <div className="glass-dark sticky bottom-0 z-10 border-t border-white/10 px-6 py-4 backdrop-blur">
+                    <div className="glass-dark sticky bottom-0 z-10 border-t border-border/50 px-6 py-4 backdrop-blur">
                         <div className="flex justify-end">
                             <Button onClick={() => onOpenChange(false)} className="rounded-xl bg-blue-600/80 px-4 py-2 text-white hover:bg-blue-700/80">
                                 {t("help.close")}
