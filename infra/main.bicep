@@ -74,6 +74,12 @@ param openAiResourceGroupName string = ''
 param openAiEndpoint string = ''
 param openAiRealtimeDeployment string = ''
 
+@description('Optional: Azure AI Foundry hub name (for projects using Foundry).')
+param aiFoundryHubName string = ''
+
+@description('Optional: Azure AI Foundry project name (for projects using Foundry).')
+param aiFoundryProjectName string = ''
+
 
 @minLength(1)
 @description('Choice of voice for the OpenAI deployment')
@@ -256,7 +262,11 @@ module acaApi 'core/host/container-app-upsert.bicep' = {
       RUNNING_IN_PRODUCTION: 'true'
       // OpenTelemetry and Application Insights
       APPLICATIONINSIGHTS_CONNECTION_STRING: applicationInsights.outputs.connectionString
-      // For using managed identity to access Azure resources. See
+      // AI Foundry Configuration
+      AZURE_AI_FOUNDRY_HUB_NAME: aiFoundryHubName
+      AZURE_AI_FOUNDRY_PROJECT_NAME: aiFoundryProjectName
+      // For using managed identity to access Azure resources. See https://github.com/microsoft/azure-container-apps/issues/442
+      AZURE_CLIENT_ID: acaIdentity.outputs.clientId
     }
   }
 }
@@ -305,8 +315,8 @@ module acaBackend 'core/host/container-app-upsert.bicep' = {
       // Alternative Application Insights configuration (fallback)
       APPINSIGHTS_INSTRUMENTATIONKEY: applicationInsights.outputs.instrumentationKey
       // AI Foundry Configuration
-      AZURE_AI_FOUNDRY_HUB_NAME: ''  // Will be populated if AI Foundry is enabled
-      AZURE_AI_FOUNDRY_PROJECT_NAME: ''  // Will be populated if AI Foundry is enabled
+      AZURE_AI_FOUNDRY_HUB_NAME: aiFoundryHubName
+      AZURE_AI_FOUNDRY_PROJECT_NAME: aiFoundryProjectName
       AZURE_RESOURCE_GROUP: resourceGroup.name
       // CORS support, for frontends on other hosts
       RUNNING_IN_PRODUCTION: 'true'
@@ -506,6 +516,11 @@ module openAiRoleSearchService 'core/security/role.bicep' = if (!reuseExistingSe
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenantId
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
+
+output AZURE_CLIENT_ID string = acaIdentity.outputs.clientId
+
+output AZURE_AI_FOUNDRY_HUB_NAME string = aiFoundryHubName
+output AZURE_AI_FOUNDRY_PROJECT_NAME string = aiFoundryProjectName
 
 output AZURE_OPENAI_ENDPOINT string = reuseExistingOpenAi ? openAiEndpoint : openAi.outputs.endpoint
 output AZURE_OPENAI_REALTIME_DEPLOYMENT string = reuseExistingOpenAi

@@ -30,6 +30,9 @@ hooks:
         continueOnError: false
 pipeline:
   variables:
+    - AZURE_AI_FOUNDRY_HUB_NAME
+    - AZURE_AI_FOUNDRY_PROJECT_NAME
+    - AZURE_CLIENT_ID
     - AZURE_OPENAI_SERVICE
     - AZURE_OPENAI_RESOURCE_GROUP
     - AZURE_OPENAI_REUSE_EXISTING

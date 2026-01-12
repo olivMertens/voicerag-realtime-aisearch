@@ -37,6 +37,9 @@ $azureSearchTitleField = Get-AzdEnvValue "AZURE_SEARCH_TITLE_FIELD"
 $azureSearchContentField = Get-AzdEnvValue "AZURE_SEARCH_CONTENT_FIELD"
 $azureSearchEmbeddingField = Get-AzdEnvValue "AZURE_SEARCH_EMBEDDING_FIELD"
 $azureSearchUseVectorQuery = Get-AzdEnvValue "AZURE_SEARCH_USE_VECTOR_QUERY"
+$azureClientId = Try-GetAzdEnvValue "AZURE_CLIENT_ID"
+$azureAiFoundryHubName = Try-GetAzdEnvValue "AZURE_AI_FOUNDRY_HUB_NAME"
+$azureAiFoundryProjectName = Try-GetAzdEnvValue "AZURE_AI_FOUNDRY_PROJECT_NAME"
 $azureApiEndpoint = Try-GetAzdEnvValue "AZURE_API_ENDPOINT"
 if (-not $azureApiEndpoint) {
 	# Backward compatible with current IaC output naming
@@ -57,3 +60,15 @@ Add-Content -Path $envFilePath -Value "AZURE_SEARCH_EMBEDDING_FIELD=$azureSearch
 Add-Content -Path $envFilePath -Value "AZURE_SEARCH_USE_VECTOR_QUERY=$azureSearchUseVectorQuery"
 Add-Content -Path $envFilePath -Value "AZURE_TENANT_ID=$azureTenantId"
 Add-Content -Path $envFilePath -Value "AZURE_API_ENDPOINT=$azureApiEndpoint"
+
+if ($azureClientId) {
+	Add-Content -Path $envFilePath -Value "AZURE_CLIENT_ID=$azureClientId"
+}
+
+if ($azureAiFoundryHubName) {
+	Add-Content -Path $envFilePath -Value "AZURE_AI_FOUNDRY_HUB_NAME=$azureAiFoundryHubName"
+}
+
+if ($azureAiFoundryProjectName) {
+	Add-Content -Path $envFilePath -Value "AZURE_AI_FOUNDRY_PROJECT_NAME=$azureAiFoundryProjectName"
+}

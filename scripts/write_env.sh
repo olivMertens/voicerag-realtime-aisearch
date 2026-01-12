@@ -16,6 +16,16 @@ get_azd_value() {
 	printf '%s' "$value"
 }
 
+try_get_azd_value() {
+	name="$1"
+	value="$(azd env get-value "$name" 2>/dev/null || true)"
+	if [ -z "$value" ] || echo "$value" | grep -q '^ERROR:'; then
+		return 1
+	fi
+	printf '%s' "$value"
+	return 0
+}
+
 # Append new values to the .env file
 echo "AZURE_OPENAI_ENDPOINT=$(get_azd_value AZURE_OPENAI_ENDPOINT)" >> $ENV_FILE_PATH
 echo "AZURE_OPENAI_REALTIME_DEPLOYMENT=$(get_azd_value AZURE_OPENAI_REALTIME_DEPLOYMENT)" >> $ENV_FILE_PATH
@@ -38,3 +48,15 @@ if [ -z "$api_endpoint" ] || echo "$api_endpoint" | grep -q '^ERROR:'; then
 	api_endpoint="$(get_azd_value API_URI)"
 fi
 echo "AZURE_API_ENDPOINT=$api_endpoint" >> $ENV_FILE_PATH
+
+if client_id="$(try_get_azd_value AZURE_CLIENT_ID)"; then
+	echo "AZURE_CLIENT_ID=$client_id" >> $ENV_FILE_PATH
+fi
+
+if hub_name="$(try_get_azd_value AZURE_AI_FOUNDRY_HUB_NAME)"; then
+	echo "AZURE_AI_FOUNDRY_HUB_NAME=$hub_name" >> $ENV_FILE_PATH
+fi
+
+if project_name="$(try_get_azd_value AZURE_AI_FOUNDRY_PROJECT_NAME)"; then
+	echo "AZURE_AI_FOUNDRY_PROJECT_NAME=$project_name" >> $ENV_FILE_PATH
+fi
