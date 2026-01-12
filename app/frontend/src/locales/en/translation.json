@@ -1,14 +1,14 @@
 {
     "app": {
         "title": "Talk to your insurance agent",
-        "notRecordingMessage": "Ask a question about your Groupama insurance. Open Help (bottom-left icon) for copy/paste examples.",
+        "notRecordingMessage": "Ask a question about your Contoso insurance. Open Help (bottom-left icon) for copy/paste examples.",
         "footer": "Built with Azure AI Search + GPT Realtime in Microsoft Foundry",
         "stopRecording": "Stop conversation",
         "startRecording": "Start conversation",
         "stopConversation": "Stop conversation"
     },
     "status": {
-        "notRecordingMessage": "Ask a question about your Groupama insurance. Open Help (bottom-left icon) for copy/paste examples.",
+        "notRecordingMessage": "Ask a question about your Contoso insurance. Open Help (bottom-left icon) for copy/paste examples.",
         "conversationInProgress": "Conversation in progress"
     },
     "controls": {
@@ -87,7 +87,7 @@
     },
     "help": {
         "open": "Help & examples",
-        "title": "User guide - Groupama AI assistant",
+        "title": "User guide - Contoso AI assistant",
         "subtitle": "Browse question types, APIs, and features. Copy/paste an example to try it.",
         "nav": {
             "overview": "Overview",
@@ -148,7 +148,7 @@
                 { "name": "get_policies", "description": "Fetch demo insurance policies." },
                 { "name": "get_claims", "description": "Fetch declared claims (status, amounts, dates…)." },
                 { "name": "get_agencies", "description": "Find nearby agencies." },
-                { "name": "get_contact_info", "description": "Get Groupama contact information." }
+                { "name": "get_contact_info", "description": "Get Contoso contact information." }
             ]
         },
         "features": {

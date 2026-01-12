@@ -19,7 +19,7 @@ This repository contains an enhanced **hybrid implementation** of RAG (Retrieval
 * [Voice Configuration](#voice-configuration)
 * [Configuration](#configuration)
 
-This demo is customized as an **insurance customer assistant for Groupama**. The assistant provides comprehensive support for policy inquiries, claims processing, agency information, and contact details through both **natural voice interface** and **text input with audio responses**.
+This demo is customized as an **insurance customer assistant for Contoso**. The assistant provides comprehensive support for policy inquiries, claims processing, agency information, and contact details through both **natural voice interface** and **text input with audio responses**.
 
 ## Latest updates (UI + UX)
 
@@ -254,7 +254,7 @@ The steps below will provision Azure resources and deploy the **hybrid voice/tex
    **Voice Chat Mode:**
    - Click "Voice Chat (Realtime)" tab
    - Click "Start conversation" button, say "Hello"
-   - Ask questions like: "What types of insurance does Groupama offer?"
+   - Ask questions like: "What types of insurance does Contoso offer?"
 
    **Text Chat Mode:**
    - Click "Text Chat (GPT-Audio)" tab
@@ -265,9 +265,9 @@ The steps below will provision Azure resources and deploy the **hybrid voice/tex
    - Click the voice selector (🔊) to choose from 8 AI voices
    - Voice changes apply to both interaction modes
    - Try questions like:
-      - "How do I file a claim with Groupama?"
-       - "Find me a Groupama agency in Lyon"
-      - "What's the contact number for Groupama customer service?"
+      - "How do I file a claim with Contoso?"
+       - "Find me a Contoso agency in Lyon"
+      - "What's the contact number for Contoso customer service?"
 
 You can also now run the app locally by following the instructions in [the next section](#development-server).
 
@@ -416,7 +416,7 @@ This script validates:
    - **Backend Health**: [http://localhost:8000](http://localhost:8000)
    - **API Health**: [http://localhost:8765/health](http://localhost:8765/health)
 
-   The API should return: `Groupama Insurance Voice Assistant API`
+   The API should return: `Contoso Insurance Voice Assistant API`
 
 8. **Testing the Application**:
    Navigate to [http://localhost:8000](http://localhost:8000) to see the hybrid insurance assistant interface.
@@ -426,9 +426,9 @@ This script validates:
    - Click the "Start conversation" button
    - Say "Hello" to initialize
    - Ask insurance-related questions like:
-       - "Quels sont les produits d'assurance de Groupama?" (What insurance products does Groupama offer?)
-       - "Comment contacter le service client Groupama?" (How to contact Groupama customer service?)
-       - "Parlez-moi des polices d'assurance automobile Groupama" (Tell me about Groupama's auto policies)
+      - "Quels sont les produits d'assurance de Contoso?" (What insurance products does Contoso offer?)
+      - "Comment contacter le service client Contoso?" (How to contact Contoso customer service?)
+      - "Parlez-moi des polices d'assurance automobile Contoso" (Tell me about Contoso's auto policies)
 
    **Text Chat Mode (GPT-Audio):**
    - Click the "Text Chat (GPT-Audio)" tab
@@ -485,7 +485,7 @@ Users can change their voice preference through the application interface:
 The application uses French insurance data and can be customized for different industries or regions:
 
 **Primary Data Sources:**
-- **`data/faq.json`**: French FAQ content for the Groupama demo, embedded into Azure AI Search
+- **`data/faq.json`**: French FAQ content for the Contoso demo, embedded into Azure AI Search
 - **`app/api/data/load_data.py`**: Policy and claims data for API endpoints
 - **`app/backend/app.py`**: System prompt configuration and language settings
 - **`app/backend/ragtools.py`**: Custom tools for insurance APIs and Azure AI Search integration

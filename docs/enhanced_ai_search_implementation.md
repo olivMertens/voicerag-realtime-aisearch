@@ -194,7 +194,7 @@ AZURE_SEARCH_TITLE_FIELD=title
 ### Basic Search
 ```python
 # The system automatically uses hybrid search
-result = await search_tool({"query": "Groupama auto insurance coverage"})
+result = await search_tool({"query": "Contoso auto insurance coverage"})
 ```
 
 ### Advanced Features

@@ -40,7 +40,7 @@ async def startup_event():
 
 @app.get("/health")
 async def read_root():
-    return 'Groupama Insurance Voice Assistant API'
+    return 'Contoso Insurance Voice Assistant API'
 
 @app.get("/api/policies")
 async def get_policies(policy_number: Optional[str] = None, holder_name: Optional[str] = None, 
@@ -194,7 +194,7 @@ async def get_realtime_policies(policy_type: Optional[str] = None, status: Optio
 @app.get("/api/agencies")
 async def get_agencies(city: Optional[str] = None, agent_name: Optional[str] = None):
     """
-    Retrieve Groupama agency information.
+    Retrieve Contoso agency information.
     
     - **city**: City to find nearby agencies (optional)
     - **agent_name**: Name of specific insurance agent (optional)
@@ -202,26 +202,26 @@ async def get_agencies(city: Optional[str] = None, agent_name: Optional[str] = N
     # Static agency data - in real implementation would come from database
     agencies = [
         {
-            "name": "Agence Groupama Lyon Centre",
+            "name": "Agence Contoso Lyon Centre",
             "city": "Lyon", 
             "address": "123 rue de la République, 69002 Lyon",
-            "phone": "01 45 16 66 66",
+            "phone": "01 23 45 67 89",
             "agents": ["Jean Martin", "Sophie Dubois"],
             "services": ["Auto", "Habitation", "Santé", "Professionnelle"]
         },
         {
-            "name": "Agence Groupama Bordeaux",
+            "name": "Agence Contoso Bordeaux",
             "city": "Bordeaux",
             "address": "456 cours de l'Intendance, 33000 Bordeaux", 
-            "phone": "01 45 16 66 66",
+            "phone": "01 23 45 67 89",
             "agents": ["Sophie Bernard", "Pierre Moreau"],
             "services": ["Auto", "Habitation", "Vie", "Jeune"]
         },
         {
-            "name": "Agence Groupama Paris 5ème",
+            "name": "Agence Contoso Paris 5ème",
             "city": "Paris",
             "address": "789 boulevard Saint-Germain, 75005 Paris",
-            "phone": "01 45 16 66 66", 
+            "phone": "01 23 45 67 89", 
             "agents": ["Michel Rousseau", "Anne Lefebvre"],
             "services": ["Auto", "Habitation", "Santé", "Professionnelle"]
         }
@@ -237,27 +237,26 @@ async def get_agencies(city: Optional[str] = None, agent_name: Optional[str] = N
 @app.get("/api/contact")
 async def get_contact_info(service_type: Optional[str] = None, company: Optional[str] = None):
     """
-    Retrieve Groupama contact information.
+    Retrieve Contoso contact information.
     
     - **service_type**: Type of service (customer_service, claims, emergency, etc.) (optional) 
     - **company**: Insurance company (optional)
     """
     contacts = {
-        "GROUPAMA": {
-            "customer_service": "01 45 16 66 66",
-            "claims": "01 45 16 66 66",
-            "emergency": "01 45 16 66 66",
-            "roadside_assistance": "01 45 16 66 66",
-            "website": "https://www.groupama.fr"
+        "CONTOSO": {
+            "customer_service": "01 23 45 67 89",
+            "claims": "01 23 45 67 89",
+            "emergency": "01 23 45 67 89",
+            "roadside_assistance": "01 23 45 67 89",
+            "website": "https://www.contoso.com"
         }
     }
     
     result = contacts
     if company:
         company_key = company.upper()
-        # Backward compatible: accept legacy company values without exposing them in responses
-        if company_key != "GROUPAMA":
-            company_key = "GROUPAMA"
+        if company_key != "CONTOSO":
+            company_key = "CONTOSO"
         result = {company_key: contacts.get(company_key, {})}
     if service_type:
         filtered = {}

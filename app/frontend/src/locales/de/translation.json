@@ -1,14 +1,14 @@
 {
     "app": {
         "title": "Sprechen Sie mit Ihrem Versicherungsberater",
-        "notRecordingMessage": "Stellen Sie eine Frage zu Ihrer Groupama-Versicherung. Öffnen Sie Hilfe (Symbol unten links) für Copy/Paste-Beispiele.",
+        "notRecordingMessage": "Stellen Sie eine Frage zu Ihrer Contoso-Versicherung. Öffnen Sie Hilfe (Symbol unten links) für Copy/Paste-Beispiele.",
         "footer": "Erstellt mit Azure AI Search + GPT Realtime in Microsoft Foundry",
         "stopRecording": "Gespräch beenden",
         "startRecording": "Gespräch starten",
         "stopConversation": "Gespräch beenden"
     },
     "status": {
-        "notRecordingMessage": "Stellen Sie eine Frage zu Ihrer Groupama-Versicherung. Öffnen Sie Hilfe (Symbol unten links) für Copy/Paste-Beispiele.",
+        "notRecordingMessage": "Stellen Sie eine Frage zu Ihrer Contoso-Versicherung. Öffnen Sie Hilfe (Symbol unten links) für Copy/Paste-Beispiele.",
         "conversationInProgress": "Gespräch läuft"
     },
     "controls": {
@@ -87,7 +87,7 @@
     },
     "help": {
         "open": "Hilfe & Beispiele",
-        "title": "Benutzerhandbuch – KI-Assistent Groupama",
+        "title": "Benutzerhandbuch – KI-Assistent Contoso",
         "subtitle": "Fragetypen, APIs und Funktionen entdecken. Ein Beispiel kopieren und ausprobieren.",
         "nav": {
             "overview": "Übersicht",
@@ -148,7 +148,7 @@
                 { "name": "get_policies", "description": "Ruft Demo-Policen/Verträge ab." },
                 { "name": "get_claims", "description": "Ruft gemeldete Schäden ab (Status, Beträge, Daten …)." },
                 { "name": "get_agencies", "description": "Findet nahegelegene Agenturen." },
-                { "name": "get_contact_info", "description": "Ruft Groupama-Kontaktinformationen ab." }
+                { "name": "get_contact_info", "description": "Ruft Contoso-Kontaktinformationen ab." }
             ]
         },
         "features": {

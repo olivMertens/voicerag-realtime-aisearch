@@ -7,7 +7,7 @@
         "stopConversation": "Arrêter la conversation"
     },
     "status": {
-        "notRecordingMessage": "Posez une question sur vos contrats Groupama. Ouvrez l’aide (icône en bas à gauche) pour des exemples à copier-coller.",
+        "notRecordingMessage": "Posez une question sur vos contrats Contoso. Ouvrez l’aide (icône en bas à gauche) pour des exemples à copier-coller.",
         "conversationInProgress": "Conversation en cours"
     },
     "controls": {
@@ -86,7 +86,7 @@
     },
     "help": {
         "open": "Aide & exemples",
-        "title": "Guide d'utilisation - Assistant IA Groupama",
+        "title": "Guide d'utilisation - Assistant IA Contoso",
         "subtitle": "Explorez les questions types, les APIs et les fonctionnalités. Copiez-collez un exemple pour tester.",
         "nav": {
             "overview": "Vue d'ensemble",
@@ -147,7 +147,7 @@
                 { "name": "get_policies", "description": "Récupère les contrats/polices d'assurance de la démo." },
                 { "name": "get_claims", "description": "Récupère les sinistres déclarés (statut, montants, dates…)." },
                 { "name": "get_agencies", "description": "Trouve des agences à proximité." },
-                { "name": "get_contact_info", "description": "Récupère les informations de contact Groupama." }
+                { "name": "get_contact_info", "description": "Récupère les informations de contact Contoso." }
             ]
         },
         "features": {

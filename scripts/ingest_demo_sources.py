@@ -3,7 +3,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 
 def _normalize_text(text: str) -> str:
@@ -13,11 +13,13 @@ def _normalize_text(text: str) -> str:
 
 
 def _fingerprint_item(category: str, title: str, chunk: str) -> str:
-    base = "|".join([
-        _normalize_text(category).lower(),
-        _normalize_text(title).lower(),
-        _normalize_text(chunk).lower(),
-    ])
+    base = "|".join(
+        [
+            _normalize_text(category).lower(),
+            _normalize_text(title).lower(),
+            _normalize_text(chunk).lower(),
+        ]
+    )
     return hashlib.sha1(base.encode("utf-8")).hexdigest()
 
 
@@ -185,10 +187,10 @@ def _extract_pdf_text(pdf_path: Path) -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Merge Groupama sources (PDF + website JSON) into data/faq.json")
+    parser = argparse.ArgumentParser(description="Merge demo sources (PDF + website JSON) into data/faq.json")
     parser.add_argument("--faq", default="data/faq.json", help="Path to faq.json")
-    parser.add_argument("--website", required=True, help="Path to WebsiteGroupamaembedding.json")
-    parser.add_argument("--pdf", required=True, help="Path to Groupama PDF (CG Habitation)")
+    parser.add_argument("--website", required=True, help="Path to website embedding JSON")
+    parser.add_argument("--pdf", required=True, help="Path to insurance policy PDF")
     parser.add_argument("--dry-run", action="store_true", help="Do not write, only report")
     args = parser.parse_args()
 
@@ -221,9 +223,9 @@ def main() -> int:
     website_summary = str(website_obj.get("summary", "")).strip()
     if website_title and website_summary:
         chunk = _normalize_text(website_summary + (f"\n\nSource: {source_url}" if source_url else ""))
-        fp = _fingerprint_item(category, f"Site Groupama – {website_title} (résumé)", chunk)
+        fp = _fingerprint_item(category, f"Site Contoso – {website_title} (résumé)", chunk)
         if fp not in existing:
-            item = {"category": category, "title": f"Site Groupama – {website_title} (résumé)", "chunk": chunk}
+            item = {"category": category, "title": f"Site Contoso – {website_title} (résumé)", "chunk": chunk}
             added.append(item)
             existing.add(fp)
 
@@ -233,7 +235,7 @@ def main() -> int:
             if not isinstance(sec, dict):
                 continue
             for t, ch in _flatten_section(sec):
-                title = _normalize_text(f"Site Groupama – {t}")
+                title = _normalize_text(f"Site Contoso – {t}")
                 chunk = _normalize_text(ch + (f"\n\nSource: {source_url}" if source_url else ""))
                 fp = _fingerprint_item(category, title, chunk)
                 if fp in existing:
@@ -245,7 +247,7 @@ def main() -> int:
     pdf_text = _extract_pdf_text(pdf_path)
     pdf_chunks = _chunk_text(pdf_text, target_chars=1200, overlap=200, max_chunks=60)
     for i, ch in enumerate(pdf_chunks, start=1):
-        title = f"CG Habitation – Extrait {i}"
+        title = f"Home policy terms – Excerpt {i}"
         chunk = _normalize_text(ch)
         fp = _fingerprint_item("Habitation", title, chunk)
         if fp in existing:

@@ -424,7 +424,7 @@ class ChatHandler:
     
     def _get_system_message(self) -> str:
         """Get the system message for the chat"""
-        return """You are a professional and caring insurance advisor for Groupama.
+        return """You are a professional and caring insurance advisor for Contoso Insurance.
 
 CRITICAL MANDATORY RULE: You MUST ALWAYS use the 'search' tool FIRST before answering ANY insurance-related question. NO exceptions.
 
@@ -440,7 +440,7 @@ AVAILABLE TOOLS - USE THEM:
 - 'get_policies': Check insurance policies
 - 'get_claims': Check declared claims
 - 'get_agencies': Find local agencies
-- 'get_contact_info': Get Groupama contact information
+- 'get_contact_info': Get Contoso contact information
 
 BEHAVIOR GUIDELINES:
 - Respond in the same language as the user (French or English)
@@ -455,7 +455,7 @@ BEHAVIOR GUIDELINES:
 
 EXAMPLE MANDATORY WORKFLOW:
 User: "Quels sont les délais pour déclarer un sinistre (vol, vandalisme, catastrophe naturelle) ?"
-1. I MUST call search("Groupama délais déclaration vol vandalisme catastrophe naturelle habitation")
+1. I MUST call search("Contoso délais déclaration vol vandalisme catastrophe naturelle habitation")
 2. I MUST call report_grounding with:
    - sources: [list of chunk IDs actually used]
    - confidence_level: "high" (if sources are comprehensive and relevant)
@@ -472,7 +472,7 @@ REMEMBER: NEVER answer insurance questions without using the 'search' tool first
 
     def _get_audio_system_message(self) -> str:
         """Get the system message specifically for GPT-Audio generation"""
-        return """You are a professional and caring insurance advisor for Groupama.
+        return """You are a professional and caring insurance advisor for Contoso Insurance.
 
 CRITICAL MANDATORY RULE: You MUST ALWAYS use the 'search' tool FIRST before answering ANY insurance-related question. NO exceptions.
 
@@ -488,7 +488,7 @@ AVAILABLE TOOLS - USE THEM:
 - 'get_policies': Check insurance policies
 - 'get_claims': Check declared claims
 - 'get_agencies': Find local agencies
-- 'get_contact_info': Get Groupama contact information
+- 'get_contact_info': Get Contoso contact information
 
 BEHAVIOR GUIDELINES:
 - Respond in the same language as the user (French or English)
@@ -519,7 +519,7 @@ WRONG: "Je vais vous expliquer les garanties"
 CORRECT: "Pour un sinistre habitation, rassemblez les éléments utiles (date, circonstances, photos, justificatifs) et respectez les délais de déclaration indiqués dans vos documents."
 
 WRONG: "Je vais vérifier vos options"
-CORRECT: "En cas d'urgence (logement inhabitable, effraction, dépannage), contactez l'assistance. Le knowledge base mentionne une assistance 24/7 au 01 45 16 66 66."
+CORRECT: "En cas d'urgence (logement inhabitable, effraction, dépannage), contactez l'assistance. Le knowledge base mentionne une assistance 24/7 au 01 23 45 67 89."
 
 BE A KNOWLEDGEABLE INSURANCE CONSULTANT, NOT AN ASSISTANT:
 - Give specific coverage amounts, deductibles, procedures

@@ -81,12 +81,12 @@ def setup_azure_monitor():
             from opentelemetry import trace
             
             # Get Microsoft Foundry project information from environment
-            ai_foundry_project = os.environ.get("AZURE_AI_FOUNDRY_PROJECT_NAME", "groupama-insurance-assistant")
+            ai_foundry_project = os.environ.get("AZURE_AI_FOUNDRY_PROJECT_NAME", "contoso-insurance-assistant")
             ai_foundry_hub = os.environ.get("AZURE_AI_FOUNDRY_HUB_NAME", "")
             deployment_env = os.environ.get("RUNNING_IN_PRODUCTION", "false")
             
             resource_attributes = {
-                "service.name": "groupama-voice-assistant",
+                "service.name": "contoso-voice-assistant",
                 "service.version": "1.0.0",
                 "service.namespace": "insurance",
                 "deployment.environment": "production" if deployment_env.lower() == "true" else "development",
@@ -130,7 +130,7 @@ def setup_azure_monitor():
 
 def get_tracer():
     """Get OpenTelemetry tracer for creating spans"""
-    return trace.get_tracer("groupama_voice_assistant")
+    return trace.get_tracer("contoso_voice_assistant")
 
 def trace_tool_call(tool_name: str, args: Dict[str, Any], duration: Optional[float] = None, 
                    response: Optional[Any] = None, response_size: Optional[int] = None):
@@ -142,7 +142,7 @@ def trace_tool_call(tool_name: str, args: Dict[str, Any], duration: Optional[flo
         span.set_attributes({
             # Standard semantic conventions
             "operation.name": f"ai_tool.{tool_name}",
-            "ai.system": "groupama_voice_assistant",
+            "ai.system": "contoso_voice_assistant",
             "ai.tool.name": tool_name,
             "ai.tool.type": "function",
             

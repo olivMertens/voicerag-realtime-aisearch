@@ -1,4 +1,4 @@
-"""Insurance data loading functions for Groupama (demo) policies and claims."""
+"""Insurance data loading functions for Contoso (demo) policies and claims."""
 import json
 import os
 from typing import List, Dict, Any
@@ -6,13 +6,13 @@ from pathlib import Path
 
 def get_policies_data() -> List[Dict[str, Any]]:
     """
-    Get sample Groupama (demo) policy data for demonstration purposes.
+    Get sample Contoso (demo) policy data for demonstration purposes.
     In production, this would connect to the actual insurance database.
     """
     return [
         {
             "id": 1,
-            "policy": "GROUPAMA-AUTO-001",
+            "policy": "CONTOSO-AUTO-001",
             "name": "Jean Dupont",
             "first_name": "Jean",
             "last_name": "Dupont",
@@ -26,7 +26,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 2,
-            "policy": "GROUPAMA-HAB-002",
+            "policy": "CONTOSO-HAB-002",
             "name": "Marie Martin",
             "first_name": "Marie",
             "last_name": "Martin",
@@ -40,7 +40,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 3,
-            "policy": "GROUPAMA-VIE-003",
+            "policy": "CONTOSO-VIE-003",
             "name": "Pierre Leroy",
             "first_name": "Pierre",
             "last_name": "Leroy",
@@ -54,7 +54,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 4,
-            "policy": "GROUPAMA-SANTE-004",
+            "policy": "CONTOSO-SANTE-004",
             "name": "Sophie Dubois",
             "first_name": "Sophie",
             "last_name": "Dubois",
@@ -68,7 +68,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 5,
-            "policy": "GROUPAMA-MOTO-005",
+            "policy": "CONTOSO-MOTO-005",
             "name": "Julien Moreau",
             "first_name": "Julien",
             "last_name": "Moreau",
@@ -82,7 +82,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 6,
-            "policy": "GROUPAMA-AUTO-006",
+            "policy": "CONTOSO-AUTO-006",
             "name": "Catherine Leroy",
             "first_name": "Catherine",
             "last_name": "Leroy",
@@ -96,7 +96,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 7,
-            "policy": "GROUPAMA-HAB-007",
+            "policy": "CONTOSO-HAB-007",
             "name": "Michel Rousseau",
             "first_name": "Michel",
             "last_name": "Rousseau",
@@ -110,7 +110,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 8,
-            "policy": "GROUPAMA-PROF-008",
+            "policy": "CONTOSO-PROF-008",
             "name": "Anne Lefebvre",
             "first_name": "Anne",
             "last_name": "Lefebvre",
@@ -124,7 +124,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 9,
-            "policy": "GROUPAMA-HAB-003",
+            "policy": "CONTOSO-HAB-003",
             "name": "Isabelle Durand",
             "first_name": "Isabelle",
             "last_name": "Durand",
@@ -138,7 +138,7 @@ def get_policies_data() -> List[Dict[str, Any]]:
         },
         {
             "id": 10,
-            "policy": "GROUPAMA-SANTE-010",
+            "policy": "CONTOSO-SANTE-010",
             "name": "Jérôme Pareille",
             "first_name": "Jérôme",
             "last_name": "Pareille",
@@ -154,13 +154,13 @@ def get_policies_data() -> List[Dict[str, Any]]:
 
 def get_claims_data() -> List[Dict[str, Any]]:
     """
-    Get sample Groupama (demo) claims data for demonstration purposes.
+    Get sample Contoso (demo) claims data for demonstration purposes.
     In production, this would connect to the actual insurance database.
     """
     return [
         {
             "id": "CLAIM-001",
-            "policy_number": "GROUPAMA-AUTO-001",
+            "policy_number": "CONTOSO-AUTO-001",
             "holder": "Jean Dupont",
             "holder_first_name": "Jean",
             "holder_last_name": "Dupont",
@@ -204,7 +204,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-002",
-            "policy_number": "GROUPAMA-HAB-002",
+            "policy_number": "CONTOSO-HAB-002",
             "holder": "Marie Martin",
             "holder_first_name": "Marie",
             "holder_last_name": "Martin",
@@ -248,7 +248,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-003",
-            "policy_number": "GROUPAMA-MOTO-005",
+            "policy_number": "CONTOSO-MOTO-005",
             "holder": "Julien Moreau",
             "holder_first_name": "Julien",
             "holder_last_name": "Moreau",
@@ -292,7 +292,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-004",
-            "policy_number": "GROUPAMA-AUTO-006",
+            "policy_number": "CONTOSO-AUTO-006",
             "holder": "Catherine Leroy",
             "holder_first_name": "Catherine",
             "holder_last_name": "Leroy",
@@ -336,7 +336,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-005",
-            "policy_number": "GROUPAMA-HAB-007",
+            "policy_number": "CONTOSO-HAB-007",
             "holder": "Michel Rousseau",
             "holder_first_name": "Michel",
             "holder_last_name": "Rousseau",
@@ -380,7 +380,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-006",
-            "policy_number": "GROUPAMA-HAB-003",
+            "policy_number": "CONTOSO-HAB-003",
             "holder": "Isabelle Durand",
             "holder_first_name": "Isabelle",
             "holder_last_name": "Durand",
@@ -437,7 +437,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-007",
-            "policy_number": "GROUPAMA-VIE-003",
+            "policy_number": "CONTOSO-VIE-003",
             "holder": "Pierre Leroy",
             "holder_first_name": "Pierre",
             "holder_last_name": "Leroy",
@@ -455,7 +455,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
                     "time": "14:15",
                     "duration": "25 minutes",
                     "agent": "Sandrine Lefebvre",
-                    "summary": "M. Leroy demande rachat partiel 8000€ sur son contrat vie GROUPAMA-VIE-003. Capital actuel: 85000€. Demande motivée par travaux extension maison.",
+                    "summary": "M. Leroy demande rachat partiel 8000€ sur son contrat vie CONTOSO-VIE-003. Capital actuel: 85000€. Demande motivée par travaux extension maison.",
                     "decisions": [
                         "Rachat partiel 8000€ autorisé",
                         "Valeur de rachat confirmée: 8000€",
@@ -495,7 +495,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-008",
-            "policy_number": "GROUPAMA-SANTE-004",
+            "policy_number": "CONTOSO-SANTE-004",
             "holder": "Sophie Dubois",
             "holder_first_name": "Sophie",
             "holder_last_name": "Dubois",
@@ -525,7 +525,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-009",
-            "policy_number": "GROUPAMA-PROF-008",
+            "policy_number": "CONTOSO-PROF-008",
             "holder": "Anne Lefebvre",
             "holder_first_name": "Anne",
             "holder_last_name": "Lefebvre",
@@ -555,7 +555,7 @@ def get_claims_data() -> List[Dict[str, Any]]:
         },
         {
             "id": "CLAIM-010",
-            "policy_number": "GROUPAMA-SANTE-010",
+            "policy_number": "CONTOSO-SANTE-010",
             "holder": "Jérôme Pareille",
             "holder_first_name": "Jérôme",
             "holder_last_name": "Pareille",
@@ -601,29 +601,29 @@ def get_claims_data() -> List[Dict[str, Any]]:
 
 def get_insurance_products() -> List[Dict[str, Any]]:
     """
-    Get Groupama (demo) insurance product information
+    Get Contoso (demo) insurance product information
     """
     return [
         {
-            "company": "GROUPAMA",
+            "company": "CONTOSO",
             "product": "Auto",
             "formulas": ["Tiers", "Tous Risques"],
             "features": ["Responsabilité civile", "Assistance", "Protection corporelle", "Défense juridique"]
         },
         {
-            "company": "GROUPAMA", 
+            "company": "CONTOSO", 
             "product": "Auto",
             "formulas": ["Tiers", "Tous Risques"],
             "features": ["Responsabilité civile illimitée", "Assistance 24/7", "Véhicule de remplacement", "Options mobilité"]
         },
         {
-            "company": "GROUPAMA",
+            "company": "CONTOSO",
             "product": "Habitation",
             "formulas": ["Essentiel", "Confort"],
             "features": ["Multirisque", "Protection des enfants scolarisés", "Assistance 24/7", "Renseignements juridiques"]
         },
         {
-            "company": "GROUPAMA",
+            "company": "CONTOSO",
             "product": "Habitation",
             "formulas": ["Essentiel", "Confort"],
             "features": ["Protection étendue", "Assistance dépannage", "Défense juridique", "Services après sinistre"]

@@ -7,7 +7,7 @@
         "stopConversation": "会話を停止"
     },
     "status": {
-        "notRecordingMessage": "Groupamaの保険について質問してください。ヘルプ（左下のアイコン）からコピー用の例を開けます。",
+        "notRecordingMessage": "Contosoの保険について質問してください。ヘルプ（左下のアイコン）からコピー用の例を開けます。",
         "conversationInProgress": "会話中"
     },
     "controls": {
@@ -86,7 +86,7 @@
     },
     "help": {
         "open": "ヘルプと例",
-        "title": "利用ガイド - Groupama AIアシスタント",
+        "title": "利用ガイド - Contoso AIアシスタント",
         "subtitle": "質問タイプ、API、機能を確認できます。例をコピーして試してください。",
         "nav": {
             "overview": "概要",
@@ -147,7 +147,7 @@
                 { "name": "get_policies", "description": "デモの契約/ポリシーを取得。" },
                 { "name": "get_claims", "description": "申請済みの請求/事故情報を取得（状況、金額、日付など）。" },
                 { "name": "get_agencies", "description": "近くの代理店を検索。" },
-                { "name": "get_contact_info", "description": "Groupamaの連絡先情報を取得。" }
+                { "name": "get_contact_info", "description": "Contosoの連絡先情報を取得。" }
             ]
         },
         "features": {

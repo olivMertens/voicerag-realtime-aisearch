@@ -1,14 +1,14 @@
 {
     "app": {
         "title": "Habla con tu agente de seguros",
-        "notRecordingMessage": "Haz una pregunta sobre tu seguro Groupama. Abre Ayuda (icono abajo a la izquierda) para ejemplos para copiar y pegar.",
+        "notRecordingMessage": "Haz una pregunta sobre tu seguro Contoso. Abre Ayuda (icono abajo a la izquierda) para ejemplos para copiar y pegar.",
         "footer": "Construido con Azure AI Search + GPT Realtime en Microsoft Foundry",
         "stopRecording": "Detener conversación",
         "startRecording": "Iniciar conversación",
         "stopConversation": "Detener conversación"
     },
     "status": {
-        "notRecordingMessage": "Haz una pregunta sobre tu seguro Groupama. Abre Ayuda (icono abajo a la izquierda) para ejemplos para copiar y pegar.",
+        "notRecordingMessage": "Haz una pregunta sobre tu seguro Contoso. Abre Ayuda (icono abajo a la izquierda) para ejemplos para copiar y pegar.",
         "conversationInProgress": "Conversación en progreso"
     },
     "controls": {
@@ -87,7 +87,7 @@
     },
     "help": {
         "open": "Ayuda y ejemplos",
-        "title": "Guía de uso - Asistente IA Groupama",
+        "title": "Guía de uso - Asistente IA Contoso",
         "subtitle": "Explora tipos de preguntas, APIs y funcionalidades. Copia y pega un ejemplo para probar.",
         "nav": {
             "overview": "Resumen",
@@ -148,7 +148,7 @@
                 { "name": "get_policies", "description": "Recupera pólizas/contratos de la demo." },
                 { "name": "get_claims", "description": "Recupera siniestros declarados (estado, importes, fechas…)." },
                 { "name": "get_agencies", "description": "Encuentra agencias cercanas." },
-                { "name": "get_contact_info", "description": "Obtiene información de contacto de Groupama." }
+                { "name": "get_contact_info", "description": "Obtiene información de contacto de Contoso." }
             ]
         },
         "features": {
